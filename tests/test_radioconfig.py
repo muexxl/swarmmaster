@@ -14,10 +14,10 @@ class BasicTestSuite(unittest.TestCase):
         config.CSNPin = 0
         assert config.channel == 0x64
         assert config.CEPin == 22
-        assert config.get_address_from_id(0xeeff) == b'\xe3\xff\xee\xe7'
-        assert config.get_id_from_address(b'\xe3\xff\xee\xe7') == 0xeeff
+        assert config.get_address_from_id(0xeeff) == b'\xe7\xff\xee\xe3'
+        assert config.get_id_from_address(b'\xe7\xff\xee\xe3') == 0xeeff
     
-    def test_broadcast_address():
+    def test_broadcast_address(self):
         assert config.broadcastAddress == b'\xc7\xa1\xb2\xc3'
         assert config.get_broadcast_address() ==  b'\xc7\xa1\xb2\xc3'
 
