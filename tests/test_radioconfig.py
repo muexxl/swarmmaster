@@ -4,7 +4,9 @@ from .context import radiolink
 
 import unittest
 
-config =radiolink.RadioConfig()
+
+rl = radiolink.Radiolink()
+config =rl.config
 
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
