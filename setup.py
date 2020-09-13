@@ -13,13 +13,13 @@ with open('LICENSE') as f:
 
 setup(
     name='radiolink',
-    version='0.1.1',
+    version='0.1.2',
     description='Radiolink package for communication with multiple RF24 modules',
     long_description=readme,
     author='Stephan Muekusch',
     author_email='stephan@1drone.de',
     url='https://github.com/muexxl',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'test_integration','docs'))
 )
 
