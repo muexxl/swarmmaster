@@ -13,7 +13,7 @@ with open('LICENSE') as f:
 
 setup(
     name='radiolink',
-    version='0.1.0',
+    version='0.1.1',
     description='Radiolink package for communication with multiple RF24 modules',
     long_description=readme,
     author='Stephan Muekusch',

@@ -6,9 +6,11 @@ config = RadioConfig()
 radio= RF24(22,0) 
 receive_buffer= bytearray(0)
 
-def init():
+def init(ce_pin= 22, csn_pin==0):
     global config
     global radio
+    config.CEPin = ce_pin
+    config.CSNPin = csn_pin
     radio = RF24(config.CEPin, config.CSNPin)
     radio.begin()
 
