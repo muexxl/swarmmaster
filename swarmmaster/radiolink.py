@@ -24,7 +24,6 @@ class Radiolink():
         self.radio.startListening()
         self.set_adresses()
 
-
     def set_adresses(self):
 
         self.radio.openReadingPipe(0, self.config.get_master_address())
@@ -33,19 +32,15 @@ class Radiolink():
         self.radio.startListening()
 
     def open_reading_and_writing_pipe(self, address: bytes):
-
         self.radio.openReadingPipe(0,address)
         self.radio.openWritingPipe(address)
 
-    def send_to_id(self, id: int, data:bytearray):
+    def open_pipes_to_id(self, id: int):
         address= self.config.get_address_from_id(id)
         self.open_reading_and_writing_pipe(address)
         self.radio.stopListening()
-        return self.send(data)
 
     def send(self, data: bytearray):
-        print("Sending now data")
-        print(data)
         return self.radio.write(data)
         
 

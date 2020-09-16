@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .context import radiolink
+from .context import swarmmaster
 
 import unittest
 
