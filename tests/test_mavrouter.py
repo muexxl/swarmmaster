@@ -2,6 +2,7 @@
 
 from .context import swarmmaster
 from nose.tools import *
+from pymavlink.dialects.v20 import ardupilotmega as mavlink2
 
 import unittest
 
@@ -59,20 +60,38 @@ import unittest
 # 'trivial_all'
 # 'with_setup']
 
-mp = swarmmaster.Mavpacker()
 client = swarmmaster.SwarmClient()
+mav= mavlink2.MAVLink(open('mav.file', 'wb'))
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
     
-    def test_mavpacker(self):
+    def test_mav_packer_change_client_id(self):
         
-        packet = mp.check_client(client)
-        assert packet == None
-
-        data= bytearray(b'x0123456789abcdef0123456789abcdef')
-        client.add_data_to_rx_buffer(data)
-        packet = mp.check_client(client)
-        assert packet[:16] == bytearray(b'0123456789abcdef')
-
+        mr = swarmmaster.Mavrouter()
+        client.id = 4
+        
+        #Check initialization to FALSE
+        assert client.mav_id_correct == False
+        
+        #check if value stays false in case of incorrect SYSID PARAM MESSAGE
+        param_id = b'SYSID_THISMAV'
+        param_value = 5.0 #wrong value!
+        param_type = 4 #int116
+        param_count = 1001
+        param_index = 1
+        valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
+        
+        client.rx_buffer = bytearray(valuemsg.pack(mav))
+        mr.check_client(client)
+        assert_false(client.mav_id_correct)
+        
+        #check if value successfully changes to TRUE in case of correct SYS ID PARAM MESSAGE
+        param_value = 4.0 # correct value 
+        valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
+        client.rx_buffer = bytearray(valuemsg.pack(mav))
+        mr.check_client(client)
+        assert_true(client.mav_id_correct)
+        del mr
+   
 if __name__ == '__main__':
     unittest.main()

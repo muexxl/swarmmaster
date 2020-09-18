@@ -1,6 +1,7 @@
 
 # python -m swarmmaster.tests_integration.test_publisher
 
+# nc -klu 14550 for receiving broadcasts
 from ..swarmmaster import *
 import time
 counter = 0
