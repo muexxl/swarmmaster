@@ -1,0 +1,15 @@
+#! /usr/bin/env python3
+
+from swarmmaster import *
+
+sm = SwarmMaster()
+us =sm.udpserver
+md =sm.mavdistributor
+to = sm.terminaloutput
+
+try:
+    sm.run()
+except KeyboardInterrupt:
+    us.stop()
+    md.stop()
+    to.stop()

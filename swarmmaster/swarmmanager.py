@@ -16,10 +16,10 @@ class SwarmManager:
     def add_client(self,id):
         if not self.is_client(id):
             self.clients[id] = SwarmClient(id)
-            logger.info(f'Added Client {id:04x},  Total Clients: {len(self.clients)}')
+            logger.info(f'Swarmmanager\t| Added Client {id:04x},  Total Clients: {len(self.clients)}')
             return True
         else:
-            logger.warning(f'Adding Client {id:04x} FAILED,  Total Clients: {len(self.clients)}')
+            logger.warning(f'Swarmmanager\t| {id:04x} FAILED,  Total Clients: {len(self.clients)}')
             return False
 
     def is_client(self,id):
@@ -32,17 +32,17 @@ class SwarmManager:
     def remove_client(self,id):
         try:
             self.clients.pop(id)
-            logger.info(f'Client # {id:04x} successfully removed')
+            logger.info(f'Swarmmanager\t| Client # {id:04x} successfully removed')
             return True
         except KeyError as e:
-            logger.warning(f'Failed to remove Client # {id:04x}. Client not registered')
+            logger.warning(f'Swarmmanager\t| Failed to remove Client # {id:04x}. Client not registered')
             return False
         
     def next_client(self):
         try:
             self.current_client = sorted(self.clients.values(),key = lambda x:x.prio, reverse=False)[0]
             self.current_client.prio +=1
-            logging.debug(f'Next is Client #{self.current_client.id:04x} with prio {self.current_client.prio}')
+            logging.debug(f'Swarmmanager\t| Next Client #{self.current_client.id:04x} at priority {self.current_client.prio}')
             self.check_client_priorities()
             return self.current_client
         except IndexError:
@@ -73,7 +73,7 @@ class SwarmManager:
     def report_fail(self):
         client =  self.current_client
         client.fail_counter +=1
-        logger.warning(f'reported fail {client.fail_counter} for client {client.id}')
+        logger.warning(f'Swarmmanager\t| reported fail {client.fail_counter} for client #{client.id:04x}')
         if client.fail_counter > self.max_fails:
             self.remove_client(client.id)
         self.next_client()

@@ -1,4 +1,27 @@
+Welcome to SwarmMaster - an intelligent Access Point for rf24 clients on MAVLINK
 
-Kudos to Kenneth Reitz for providing this nice sample Module
 
-`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
+Setup:
+
+    Clients: Drones with nrf24 radios
+    Master: Raspberry Pi with nrf24 radio 
+
+Idea:
+    Clients send data stream to RaspberryPi via nrf radio
+    Raspberry reassembles the MAVLINK Messages and forwards them via UDP to the GroundControlStation
+    Raspberry listens on UDP for MAVLINK Messages from GroundControlStation and forwards the Messages to the respective Client
+
+    target_system is used to identify the respecive client.
+    
+
+Installation:
+
+    git clone 
+
+    cd swarmmaster
+    pip install . 
+
+
+Running:
+
+swarmmaster-run

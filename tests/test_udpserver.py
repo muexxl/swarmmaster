@@ -3,7 +3,7 @@
 from .context import swarmmaster
 from nose.tools import *
 from pymavlink.dialects.v20 import ardupilotmega as mavlink2
-
+import time
 import unittest
 
 # 'assert_almost_equal'
@@ -65,33 +65,41 @@ mav= mavlink2.MAVLink(open('mav.file', 'wb'))
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
     
-    def test_mav_packer_change_client_id(self):
+    # def test_mav_packer_change_client_id(self):
         
-        mr = swarmmaster.Mavrouter()
-        client.id = 4
+    #     mr = swarmmaster.Mavrouter()
+    #     client.id = 4
         
-        #Check initialization to FALSE
-        assert client.mav_id_correct == False
+    #     #Check initialization to FALSE
+    #     assert client.mav_id_correct == False
         
-        #check if value stays false in case of incorrect SYSID PARAM MESSAGE
-        param_id = b'SYSID_THISMAV'
-        param_value = 5.0 #wrong value!
-        param_type = 4 #int116
-        param_count = 1001
-        param_index = 1
-        valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
+    #     #check if value stays false in case of incorrect SYSID PARAM MESSAGE
+    #     param_id = b'SYSID_THISMAV'
+    #     param_value = 5.0 #wrong value!
+    #     param_type = 4 #int116
+    #     param_count = 1001
+    #     param_index = 1
+    #     valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
         
-        client.rx_buffer = bytearray(valuemsg.pack(mav))
-        mr.check_client(client)
-        assert_false(client.mav_id_correct)
+    #     client.rx_buffer = bytearray(valuemsg.pack(mav))
+    #     mr.check_client(client)
+    #     assert_false(client.mav_id_correct)
         
-        #check if value successfully changes to TRUE in case of correct SYS ID PARAM MESSAGE
-        param_value = 4.0 # correct value 
-        valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
-        client.rx_buffer = bytearray(valuemsg.pack(mav))
-        mr.check_client(client)
-        assert_true(client.mav_id_correct)
-        del mr
-   
+    #     #check if value successfully changes to TRUE in case of correct SYS ID PARAM MESSAGE
+    #     param_value = 4.0 # correct value 
+    #     valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
+    #     client.rx_buffer = bytearray(valuemsg.pack(mav))
+    #     mr.check_client(client)
+    #     assert_true(client.mav_id_correct)
+
+    def test_udp_server(self):
+        us = swarmmaster.UDPServer()
+        assert_false(us.keep_running)
+        us.start()
+        time.sleep(0.3)
+        assert_true(us.keep_running)
+        us.stop()
+        assert_false(us.keep_running)
+
 if __name__ == '__main__':
     unittest.main()
