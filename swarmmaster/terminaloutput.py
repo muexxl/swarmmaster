@@ -31,13 +31,16 @@ class TerminalOutput(threading.Thread):
         total_tx = 0
         print ('-'*50)
         print ('\tClient#\tRX      \tTX')
-        for c in self.swarmmanager.clients.values():
-            rx, tx = c.get_stats()
-            print (f'\t{c.id:04x} \t{rx/self.sleep_time} Bps \t{tx/self.sleep_time} Bps')
-            total_rx += rx
-            total_tx += tx
-        print ('-'*50)
+        try:
 
+            for c in self.swarmmanager.clients.values():
+                rx, tx = c.get_stats()
+                print (f'\t{c.id:04x} \t{rx/self.sleep_time} Bps \t{tx/self.sleep_time} Bps')
+                total_rx += rx
+                total_tx += tx
+            print ('-'*50)
+        except RuntimeError:
+            pass
         print (f'Total \t{len(self.swarmmanager.clients):02d} \t{total_rx/self.sleep_time} Bps \t{total_tx/self.sleep_time} Bps')
 
     def print_time(self):

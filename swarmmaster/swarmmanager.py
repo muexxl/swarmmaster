@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class SwarmManager:  
     min_prio = 0
     max_prio = 10
-    max_fails = 3
+    max_fails = 5
     def __init__(self):
         self.clients = dict()
         self.current_client= SwarmClient(0)
