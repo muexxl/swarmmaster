@@ -65,8 +65,3 @@ class MessageHandler(object):
 
     def next_client(self):
         self.swarmmanager.next_client()
-
-    def rem_all_clients(self):
-        self.swarmmanager.clients.clear()
-        self.swarmmanager.current_client = None
-        logger.info('Messagehandler\t| Removed all Clients')

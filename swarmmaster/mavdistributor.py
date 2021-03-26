@@ -18,7 +18,7 @@ class Mavdistributor(threading.Thread):
         self.mav.robust_parsing= True
         self.udp_server = udpserver
         self.client = None
-        self.swarmanager = swarmmanager
+        self.swarmmanager = swarmmanager
         self.keep_running = False
         threading.Thread.__init__(self)
     
@@ -73,8 +73,8 @@ class Mavdistributor(threading.Thread):
             logging.debug(f'MAVDISTRIBUTOR | Handling incoming udp messsage {msg.to_json()}')
             msg_dict = msg.to_dict()
             target_system = msg_dict['target_system']
-            if self.swarmanager.is_client(target_system):
-                client = self.swarmanager.get_client(target_system)
+            if self.swarmmanager.is_client(target_system):
+                client = self.swarmmanager.get_client(target_system)
                 client.add_data_to_tx_buffer(msg.get_msgbuf())
             else :
                 logger.warn(f'MAVDISTRIBUTOR | Received Message for Not Registered Client #{target_system:04x}. Message is beeing dropped')

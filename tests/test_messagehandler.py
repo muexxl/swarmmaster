@@ -27,15 +27,5 @@ class TestMessageHandler(unittest.TestCase):
         mh.handle_msg(deauth_msg)
         assert_false (mh.swarmmanager.is_client(0x0401))
         
-    def test_rem_all_clients(self):
-        mh.swarmmanager.clients.clear()
-        mh.swarmmanager.add_client(0x0305)
-        mh.swarmmanager.add_client(0x0505)
-        mh.swarmmanager.add_client(0x0306)
-        assert len(mh.swarmmanager.clients) == 3
-        mh.rem_all_clients()
-        assert len(mh.swarmmanager.clients) == 0
-        assert mh.swarmmanager.current_client == None
-
 if __name__ == '__main__':
     unittest.main()

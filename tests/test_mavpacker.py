@@ -77,9 +77,10 @@ class BasicTestSuite(unittest.TestCase):
         #check if value stays false in case of incorrect SYSID PARAM MESSAGE
         param_id = b'SYSID_THISMAV'
         param_value = 5.0 #wrong value!
-        param_type = 4 #int116
+        param_type = 4 #int16
         param_count = 1001
         param_index = 1
+        mav.srcSystem = 5
         valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
         
         client.rx_buffer = bytearray(valuemsg.pack(mav))
@@ -87,6 +88,7 @@ class BasicTestSuite(unittest.TestCase):
         assert_false(client.mav_id_correct)
         
         #check if value successfully changes to TRUE in case of correct SYS ID PARAM MESSAGE
+        mav.srcSystem = 4
         param_value = 4.0 # correct value 
         valuemsg = mav.param_value_encode(param_id, param_value, param_type, param_count, param_index)
         client.rx_buffer = bytearray(valuemsg.pack(mav))

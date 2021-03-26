@@ -2,7 +2,7 @@
 import logging
 logging.basicConfig(format='[%(levelname)8s]\t%(asctime)s: %(message)s ', datefmt='%d.%m.%Y %H:%M:%S', filename='swarmmaster.log', filemode='a', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+logger.level=logging.DEBUG
 
 from .radiolink import Radiolink
 from .core import SwarmMaster

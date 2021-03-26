@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Radiolink():
 
-    def __init__(self, ce_pin= 22, csn_pin=0):
+    def __init__(self, ce_pin= 25, csn_pin=0):
         self.config = RadioConfig()
         self.config.CEPin = ce_pin
         self.config.CSNPin = csn_pin
@@ -20,7 +20,7 @@ class Radiolink():
         self.radio.setChannel(self.config.channel)
         self.radio.setDataRate(RF24_2MBPS)
         self.radio.setPALevel(RF24_PA_MAX)
-        self.radio.setRetries(4,2)
+        self.radio.setRetries(1,3)
         self.radio.startListening()
         self.set_adresses()
 
@@ -49,10 +49,16 @@ class Radiolink():
         return self.send(data)
 
     def send_to_master(self, data:bytearray):
-        self.set_address(self.config.get_master_address())
+        self.open_reading_and_writing_pipe(self.config.get_master_address())
+        self.radio.stopListening()
         self.send(data)
+        self.radio.startListening()
 
-
+    def send_to_broadcast(self, data:bytearray):
+        self.open_reading_and_writing_pipe(self.config.get_broadcast_address())
+        self.radio.stopListening()
+        self.send(data)
+        self.radio.startListening()
 
     def check_radio(self):
         len = 0
@@ -70,4 +76,3 @@ class Radiolink():
             for b in receive_buffer:
                 s +=f" {b:02x}"
             print (s)
-

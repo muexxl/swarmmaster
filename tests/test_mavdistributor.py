@@ -5,13 +5,14 @@ from nose.tools import *
 import time
 import unittest
 
+sm = swarmmaster.SwarmManager()
 
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
 
     def test_mavdistributor(self):
         us = swarmmaster.UDPServer()
-        md = swarmmaster.Mavdistributor(us)
+        md = swarmmaster.Mavdistributor(us, sm)
         assert_false(md.keep_running)
         md.start()
         time.sleep(0.3)

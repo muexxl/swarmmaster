@@ -18,8 +18,14 @@ class SwarmClient:
         self.prio = 0 # Prio is 0 as base. Prio 0 means highest.  increase +1 for everytime the client is talked to. regular reductions ? maybe. 
         self.mav_id_correct = False
         self.mav_id_request_sent = 0
+
+        self.locks = []
+
         self.rx_lock = threading.Lock()
+        self.locks.append(self.rx_lock)
+
         self.tx_lock = threading.Lock()
+        self.locks.append(self.tx_lock)
 
         self.bytes_received = 0
         self.bytes_sent = 0

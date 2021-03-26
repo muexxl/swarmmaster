@@ -69,6 +69,7 @@ class Mavpacker(object):
                 logger.info(f'MAVPACK | Dropping data because of BAD DATA Mavlink Message:{msg.get_msgbuf()}')
             else:
                 if msg._header.srcSystem == client.id:
+                    client.mav_id_correct = True
                     self.udp_server.publish_via_udp(msg.get_msgbuf())
                     try:
                         logger.info(f'MAVPACK | Sending as SrcSystem {msg._header.srcSystem} via upd: {msg.to_json()}')
@@ -77,6 +78,7 @@ class Mavpacker(object):
                     
                 else:
                     logger.warn(f'MAVPACKER|  Client #{client.id:04x} tried to send as #{msg._header.srcSystem:02x} MSG: {msg.to_json()}')
+                    client.mav_id_correct = False
                     self.set_client_id(client)
         
     def set_client_id(self, client:SwarmClient):

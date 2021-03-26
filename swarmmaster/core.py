@@ -37,20 +37,24 @@ class SwarmMaster():
         self.rxtx_counter_lock = threading.Lock()
         self.rx_counter = 0
         self.tx_counter = 0
+        self.time_at_last_heartbeat = 0
 
     def run(self):
         logger.info('Starting up Swarmmaster')
         while 1:
             logger.debug('Swarmmaster\t| Checking Radio')
             msg = self.radiolink.check_radio()
+
             if msg:
                 self.messagehandler.handle_msg(msg)
+
             client = self.swarmmanager.next_client()
             if client:
                 self.talk_to_client(client)
                 self.mavpacker.check_client(client)
             else:
                 time.sleep(0.5)
+                self.send_heartbeat_if_due()    
 
     def talk_to_client(self,client:SwarmClient):
         self.radiolink.open_pipes_to_id(client.id)
@@ -72,7 +76,16 @@ class SwarmMaster():
         else:
             self.swarmmanager.report_fail()
         self.radiolink.radio.startListening()
-        
+
+    def send_heartbeat_if_due(self):
+        now = time.time()
+        if (now - self.time_at_last_heartbeat) > 2: #Emit Heartbeat Every two seconds
+            self.time_at_last_heartbeat = now
+            heartbeat_msg = b'HEARTBEAT'
+            heartbeat_msg += int(time.time()).to_bytes(4, 'little')
+            self.radiolink.send_to_broadcast(heartbeat_msg)
+            logger.debug(f'Swarmmaster\t| Sending Heartbeat : {int(now)}')
+            
     def ping_all_clients(self):
         for client in self.swarmmanager.clients.values():
             self.swarmmanager.current_client=client
