@@ -2,6 +2,8 @@ from  RF24 import *
 from .radioconfig import *
 from datetime import datetime
 
+import time
+
 class Radiolink():
 
     def __init__(self, ce_pin= 25, csn_pin=0):
@@ -57,7 +59,9 @@ class Radiolink():
     def send_to_broadcast(self, data:bytearray):
         self.open_reading_and_writing_pipe(self.config.get_broadcast_address())
         self.radio.stopListening()
-        self.send(data)
+      
+        self.radio.write(data,1) # use multicast to signal noAck. not really faster :// approx 30 ms
+        
         self.radio.startListening()
 
     def check_radio(self):
