@@ -4,6 +4,7 @@ from swarmmaster import *
 
 sm = SwarmMaster()
 us =sm.udpserver
+ul =sm.udplistener
 md =sm.mavdistributor
 to = sm.terminaloutput
 
@@ -11,5 +12,6 @@ try:
     sm.run()
 except KeyboardInterrupt:
     us.stop()
+    ul.stop()
     md.stop()
     to.stop()

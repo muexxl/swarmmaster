@@ -1,4 +1,4 @@
 {
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "yapf",
     "python.pythonPath": "/home/1drone/scripts/venv/bin/python3"
 }

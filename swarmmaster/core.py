@@ -9,6 +9,7 @@ from .udpserver import UDPServer
 from .mavpacker import Mavpacker
 from .mavdistributor import Mavdistributor
 from .terminaloutput import TerminalOutput
+from .udplistener import UDPListener
 
 import threading
 import time
@@ -31,6 +32,9 @@ class SwarmMaster():
         self.terminaloutput = TerminalOutput(self.swarmmanager)
         self.terminaloutput.start()
         
+        self.udplistener=UDPListener()
+        self.udplistener.start()
+
         self.mavpacker = Mavpacker(self.udpserver)
         self.messagehandler = MessageHandler(radiolink = self.radiolink, swarmmanager=self.swarmmanager)
         
@@ -44,9 +48,12 @@ class SwarmMaster():
         while 1:
             logger.debug('Swarmmaster\t| Checking Radio')
             msg = self.radiolink.check_radio()
-
             if msg:
                 self.messagehandler.handle_msg(msg)
+            
+            if self.udplistener.data_available:
+                logger.debug('Swarmmaster\t| Data available on  UDP listener')
+                #self.broadcast_data_from_udp_listener()
 
             client = self.swarmmanager.next_client()
             if client:
@@ -54,7 +61,8 @@ class SwarmMaster():
                 self.mavpacker.check_client(client)
             else:
                 time.sleep(0.5)
-                self.send_heartbeat_if_due()    
+            
+            self.send_heartbeat_if_due()    
 
     def talk_to_client(self,client:SwarmClient):
         self.radiolink.open_pipes_to_id(client.id)
@@ -76,6 +84,20 @@ class SwarmMaster():
         else:
             self.swarmmanager.report_fail()
         self.radiolink.radio.startListening()
+    
+    def broadcast_data_from_udp_listener():
+        logger.debug(f'Swarmmaster\t| Called function broadcast ...')
+        self.udplistener.rx_lock.acquire()
+        data= self.udplistener.rx_buf[:]
+        self.udplistener.rx_buf=b''
+        self.udplistener.data_available = False
+        self.udplistener.rx_lock.release()
+        while data:
+            self.radiolink.send_to_broadcast(data[:32])
+            logger.debug(f'Swarmmaster\t| publishing via broadcast: {data[:32]}')
+            data=data[32:]
+
+
 
     def send_heartbeat_if_due(self):
         now = time.time()
