@@ -24,4 +24,13 @@ Installation:
 
 Running:
 
-swarmmaster-run
+    swarmmaster-run
+
+IMPORTANT :
+
+    use only ONE active network interface to avoid double reception of UDP broadcasts
+
+    listening for broadcasts (RTCM messages !) on udp port 5544 
+
+    listening for groundstation messages on udp port 14570
+    publishing MAVLINK messages on udp port 14550
