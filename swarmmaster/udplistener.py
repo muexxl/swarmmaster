@@ -9,7 +9,11 @@ class UDPListener(threading.Thread):
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         #self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1),
+        # own_hostname = socket.gethostname()
+        # own_ip = socket.gethostbyname(own_hostname)
+        # own_ip = ''
         self.sock.setblocking(0)
+        
         self.sock.bind(('',5544))
         
         self.rx_buf = bytearray()
@@ -43,11 +47,11 @@ class UDPListener(threading.Thread):
         data = None
         try:
             data, address = self.sock.recvfrom(4096)
-            logger.debug(f'UDP Listener  |  Received {data }from {address}')
         except BlockingIOError:
             pass
             # logger.info('Excepted BlockingIOError')
         if data:
+            logger.debug(f'UDP Listener  |  Received {data }from {address}')
             self.rx_lock.acquire()
             self.rx_buf +=bytearray(data)
             self.data_available = True

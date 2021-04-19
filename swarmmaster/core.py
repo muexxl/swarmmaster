@@ -52,8 +52,7 @@ class SwarmMaster():
                 self.messagehandler.handle_msg(msg)
             
             if self.udplistener.data_available:
-                logger.debug('Swarmmaster\t| Data available on  UDP listener')
-                #self.broadcast_data_from_udp_listener()
+                self.broadcast_data_from_udp_listener()
 
             client = self.swarmmanager.next_client()
             if client:
@@ -85,7 +84,7 @@ class SwarmMaster():
             self.swarmmanager.report_fail()
         self.radiolink.radio.startListening()
     
-    def broadcast_data_from_udp_listener():
+    def broadcast_data_from_udp_listener(self):
         logger.debug(f'Swarmmaster\t| Called function broadcast ...')
         self.udplistener.rx_lock.acquire()
         data= self.udplistener.rx_buf[:]
