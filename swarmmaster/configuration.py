@@ -1,0 +1,1 @@
+RTCM_PREFIX = b'\xd3'
