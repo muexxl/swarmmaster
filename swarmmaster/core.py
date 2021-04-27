@@ -10,6 +10,7 @@ from .mavpacker import Mavpacker
 from .mavdistributor import Mavdistributor
 from .terminaloutput import TerminalOutput
 from .udplistener import UDPListener
+from .configuration import *
 
 import threading
 import time
@@ -43,6 +44,8 @@ class SwarmMaster():
         self.tx_counter = 0
         self.time_at_last_heartbeat = 0
 
+        
+
     def run(self):
         logger.info('Starting up Swarmmaster')
         while 1:
@@ -52,7 +55,7 @@ class SwarmMaster():
                 self.messagehandler.handle_msg(msg)
             
             if self.udplistener.data_available:
-                self.broadcast_data_from_udp_listener()
+                self.broadcast_rtcm_data_from_udp_listener()
 
             client = self.swarmmanager.next_client()
             if client:
@@ -84,17 +87,21 @@ class SwarmMaster():
             self.swarmmanager.report_fail()
         self.radiolink.radio.startListening()
     
-    def broadcast_data_from_udp_listener(self):
+    def broadcast_rtcm_data_from_udp_listener(self):
         logger.debug(f'Swarmmaster\t| Called function broadcast ...')
         self.udplistener.rx_lock.acquire()
         data= self.udplistener.rx_buf[:]
         self.udplistener.rx_buf=b''
         self.udplistener.data_available = False
         self.udplistener.rx_lock.release()
-        while data:
-            self.radiolink.send_to_broadcast(data[:32])
-            logger.debug(f'Swarmmaster\t| publishing via broadcast: {data[:32]}')
-            data=data[32:]
+
+        self.terminaloutput.stats_bytes_broadcasted += len(data)
+
+        while data:       
+            msg=RTCM_PREFIX + data[:31]
+            self.radiolink.send_to_broadcast(msg)
+            logger.info(f'Swarmmaster\t| publishing via broadcast: {msg}')
+            data=data[31:]
 
 
 
@@ -102,7 +109,7 @@ class SwarmMaster():
         now = time.time()
         if (now - self.time_at_last_heartbeat) > 2: #Emit Heartbeat Every two seconds
             self.time_at_last_heartbeat = now
-            heartbeat_msg = b'HEARTBEAT'
+            heartbeat_msg = b'HEARTBEAT' # starts with 'H' = chr(0x48)
             heartbeat_msg += int(time.time()).to_bytes(4, 'little')
             self.radiolink.send_to_broadcast(heartbeat_msg)
             logger.debug(f'Swarmmaster\t| Sending Heartbeat : {int(now)}')
