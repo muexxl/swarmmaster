@@ -14,7 +14,7 @@ class Radiolink():
         self.radio = RF24(self.config.CEPin, self.config.CSNPin)
         self.radio.begin()
 
-        self.radio.setAddressWidth(4)
+        self.radio.setAddressWidth(3)
         self.radio.setAutoAck(1)
         self.radio.enableDynamicPayloads()
         self.radio.enableAckPayload()
@@ -22,7 +22,7 @@ class Radiolink():
         self.radio.setChannel(self.config.channel)
         self.radio.setDataRate(RF24_2MBPS)
         self.radio.setPALevel(RF24_PA_MAX)
-        self.radio.setRetries(1,3)
+        self.radio.setRetries(2,4)
         self.radio.startListening()
         self.set_adresses()
 
