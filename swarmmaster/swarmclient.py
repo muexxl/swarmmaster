@@ -11,6 +11,12 @@ class SwarmClient:
     def __init__(self, id=0):
         
         self.id = id
+        
+        self.uid0=0
+        self.uid1=0
+        self.uid2=0
+        self.devid=0
+
         self.rx_buffer = bytearray()
         self.tx_buffer = bytearray()
         self.last_msg_id= coco.HELLO

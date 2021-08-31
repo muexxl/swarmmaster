@@ -8,6 +8,7 @@ from .messagehandler import MessageHandler
 from .radioconfig import RadioConfig
 from .swarmclient import SwarmClient
 from .swarmmanager import SwarmManager
+from .dronedb import DroneDB
 from .helpers import *
 
 from .mavpacker import Mavpacker

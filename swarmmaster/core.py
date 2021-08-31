@@ -10,6 +10,7 @@ from .mavpacker import Mavpacker
 from .mavdistributor import Mavdistributor
 from .terminaloutput import TerminalOutput
 from .udplistener import UDPListener
+from .dronedb import DroneDB
 from .configuration import *
 
 import threading

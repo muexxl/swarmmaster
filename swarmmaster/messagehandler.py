@@ -1,11 +1,15 @@
 import logging
 import struct
+import sqlite3
 
 from .swarmmanager import SwarmManager
 from .radiolink import Radiolink
 from .radioconfig import RadioConfig
 from .commcodes import coco
 from .helpers import *
+
+from .configuration import *
+
 
 
 import logging
@@ -27,8 +31,8 @@ class MessageHandler(object):
             raise EmptyMessageException('Messagehandler\t| Received blank message. Unable to handle blank message')
 
         message_id = msg[0]
-        if message_id == coco.CONFIGMSG:
-            self.handle_config_msg(msg)
+        if message_id == coco.REGISTRATION_REQUEST:
+            self.register_client(msg)
         elif message_id < coco.MAX_MSG_ID:
             self.handle_data_msg(msg)
         else:
@@ -55,7 +59,12 @@ class MessageHandler(object):
 
 
     def register_client(self, msg):
-        id = struct.unpack('<H',msg[3:5])[0]
+        if len(msg) == 19:
+            (id0,id1,id2,devid,crc) = struct.unpack('<LLLLH',msg[1:])
+            id0=0
+        else :
+            logger.error(f'Messagehandler\t| Registration Message with incorrect lenght received {msg.hex()}')
+        
         return self.swarmmanager.add_client(id)
          
     def deauth_client(self, msg):

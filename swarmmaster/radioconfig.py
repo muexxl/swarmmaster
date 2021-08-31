@@ -10,7 +10,7 @@ class RadioConfig(object):
         
         self.broadcastAddress = 0x1d1d1d.to_bytes(3,'little')
         self.masterAddress = 0x1d1d1e.to_bytes(3,'little')
-
+        
         self.id =0
         self.addressPrefix = 0x2d
         self.channel = 0x64 #CH100 decimal
