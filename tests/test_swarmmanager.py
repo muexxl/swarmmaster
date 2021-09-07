@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .context import swarmmaster
-from nose.tools import *
+import swarmmaster
 
+from nose.tools import * 
 import unittest
 
 # 'assert_almost_equal'

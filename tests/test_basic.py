@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .context import swarmmaster
-
+import swarmmaster
 import unittest
 
+from nose.tools import * 
 
 class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""

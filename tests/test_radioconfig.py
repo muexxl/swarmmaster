@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import swarmmaster
 
-from .context import swarmmaster
-
+from nose.tools import * 
 import unittest
 
 rl = swarmmaster.Radiolink()
@@ -15,8 +15,8 @@ class BasicTestSuite(unittest.TestCase):
         config.CSNPin = 0
         assert config.channel == 0x64
         assert config.CEPin == 22
-        assert config.get_address_from_id(0xeeff) == b'\x2d\xff\xee'
-        assert config.get_id_from_address(b'\x2d\xff\xee') == 0xeeff
+        assert config.get_address_from_id(0xeeff) == b'\xff\xee\x2d'
+        assert config.get_id_from_address(b'\xff\xee\x2d') == 0xeeff
 
     def test_broadcast_address(self):
         assert config.broadcastAddress == b'\x1d\x1d\x1d'

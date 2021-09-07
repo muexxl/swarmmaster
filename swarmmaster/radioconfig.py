@@ -23,7 +23,7 @@ class RadioConfig(object):
         return (bytes(address))
 
     def get_id_from_address(self, address: bytes):
-        id_bytes = address[1:3]
+        id_bytes = address[0:2]
         id = struct.unpack('<H',id_bytes)[0]
         return id
 

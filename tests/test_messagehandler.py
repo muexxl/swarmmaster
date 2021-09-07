@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
+import swarmmaster
 
-from .context import swarmmaster
-from nose.tools import *
+from nose.tools import * 
+
 import unittest
 
 mh = swarmmaster.MessageHandler()

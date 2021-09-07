@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from .context import swarmmaster
-from nose.tools import *
+import swarmmaster
 from pymavlink.dialects.v20 import ardupilotmega as mavlink2
 import time
 import unittest
 
+from nose.tools import * 
 # 'assert_almost_equal'
 # 'assert_almost_equals'
 # 'assert_count_equal'

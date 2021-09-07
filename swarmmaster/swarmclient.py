@@ -41,6 +41,7 @@ class SwarmClient:
 
         self.packet_id =0
         self.chksum = 0
+        self.chksum_due = 0
     
     def get_stats(self):
         self.rx_lock.acquire()
@@ -54,7 +55,7 @@ class SwarmClient:
         self.tx_lock.release()
         return bytes_received, bytes_sent
 
-    def get_tx_buffer_size(self)
+    def get_tx_buffer_size(self):
         return len(self.tx_buffer)
 
     def add_data_to_rx_buffer(self, msg):
@@ -111,35 +112,36 @@ class SwarmClient:
         self.tx_buffer = self.tx_buffer[length:]
         self.bytes_sent += length
         self.tx_lock.release()
+        return data
 
     def get_packet(self):
-        chksum_due = False
-
-        if (self.packetid == MAX_PACKET_BEFORE_CHECKSUM ):
-            chksum_due =1
+        
+        if (self.packet_id == MAX_PACKET_BEFORE_CHECKSUM ):
+            self.chksum_due =1
 
         if (len(self.tx_buffer)==0):
-            chksum_due =1
+            self.chksum_due=1
 
-        if chksum_due:
-            self.packet_id=0
+        if self.chksum_due: #checksum packet
             id_byte = coco.CHKSUM + self.packet_id
-            msg =b''
+            msg =bytearray()
             msg +=self.chksum.to_bytes(32,'little')
-            msg[0]=id_byte.to_bytes(1,'little')
+            msg[0]=id_byte
             self.packet_id = 0
+            self.chksum_due = 0
+            self.chksum = 0
+            msg = bytes(msg)
         
-        else:
+        else: #normal data packet
             msg=b''
             id_byte = coco.DATA + self.packet_id
             msg += id_byte.to_bytes(1,'little')
             msg +=self.get_data_from_tx_buffer(31)
-            while (len(msg)<32 ):
-                msg+=f0
+            if (len(msg)<32):
+                self.chksum_due =1
+                while (len(msg)<32 ):
+                    msg+=b'\xf0'
             self.chksum ^=int.from_bytes(msg,'little')
             self.packet_id +=1
             
         return msg
-
-    def get_checksum_packet(self):
-        self.packet_id=0

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .context import swarmmaster
+import swarmmaster
 
+from nose.tools import * 
 import unittest
 
 sc = swarmmaster.SwarmClient(1)
@@ -71,6 +72,32 @@ class TestSwarmClient(unittest.TestCase):
         assert sc.tx_buffer == bytearray(b'456789')
         sc.max_rx_buf = 2**20 #2**20 means  1MB
         sc.max_tx_buf = 2**20
+    
+    def test_get_packet(self):
+        sc.tx_buffer.clear()
+        d1=b'0123456789abcdef0123456789abcde'
+        d2=b'fedcba9876543210fedcba9876543'
+        sc.add_data_to_tx_buffer(d1)
+        sc.add_data_to_tx_buffer(d2)
+        assert sc.get_tx_buffer_size() == 60
+        p1 = sc.get_packet()
+        assert len(p1) == 32
+        assert p1[1:11] == b'0123456789'
+        p2 = sc.get_packet()
+        assert p2[1:32] == b'fedcba9876543210fedcba9876543\xf0\xf0'
+        p3 = sc.get_packet()
+        assert p3[0:1]==b'\xc2'
+        p2_restore = int.from_bytes(p3,'little') ^ int.from_bytes(p1,'little')
+        p2_restore = bytearray(p2_restore.to_bytes(32,'little'))
+        p2_restore[0]=0xb1
+        assert p2_restore == p2
+        
+        p4 = sc.get_packet()
+        p4_expected =bytearray(32)
+        p4_expected[0]=0xc0
+        assert p4 == p4_expected
+
+        pass
 
 if __name__ == '__main__':
     unittest.main()

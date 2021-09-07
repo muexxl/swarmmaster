@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .context import swarmmaster
-from nose.tools import *
+import swarmmaster
 import time
 import unittest
 
+from nose.tools import * 
 sm = swarmmaster.SwarmManager()
 
 class BasicTestSuite(unittest.TestCase):
