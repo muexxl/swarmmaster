@@ -57,5 +57,8 @@ class DroneDB(object):
     def remove_table(self):
         self.cur.execute("DROP TABLE IF EXISTS drones")
 
+    def __del__(self):
+        self.cur.close()
+        self.con.close()
         
 

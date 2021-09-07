@@ -16,11 +16,13 @@ class SwarmManager:
         self.current_client= None
         self.clients_lock = threading.Lock()
         
-    def add_client(self,id):
+    def add_client(self,id, client=None):
         returnvalue = False
+        if (not client):
+            client=SwarmClient(id)
         if not self.is_client(id):
             self.clients_lock.acquire()
-            self.clients[id] = SwarmClient(id)
+            self.clients[id] = client
             self.clients_lock.release()
             logger.info(f'Swarmmanager\t| Added Client {id:04x},  Total Clients: {len(self.clients)}')
             returnvalue =True

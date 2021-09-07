@@ -2,6 +2,8 @@
 from .commcodes import coco
 import threading
 import logging
+from .configuration import *
+
 logger= logging.getLogger(__name__)
 
 class SwarmClient:
@@ -16,6 +18,7 @@ class SwarmClient:
         self.uid1=0
         self.uid2=0
         self.devid=0
+        self.registration_request_ack_sent = False
 
         self.rx_buffer = bytearray()
         self.tx_buffer = bytearray()
@@ -35,6 +38,9 @@ class SwarmClient:
 
         self.bytes_received = 0
         self.bytes_sent = 0
+
+        self.packet_id =0
+        self.chksum = 0
     
     def get_stats(self):
         self.rx_lock.acquire()
@@ -47,6 +53,9 @@ class SwarmClient:
         self.bytes_sent = 0
         self.tx_lock.release()
         return bytes_received, bytes_sent
+
+    def get_tx_buffer_size(self)
+        return len(self.tx_buffer)
 
     def add_data_to_rx_buffer(self, msg):
         msg_id = msg[0]
@@ -94,4 +103,43 @@ class SwarmClient:
         self.tx_buffer = self.tx_buffer[length:]
         self.bytes_sent += length
         self.tx_lock.release()
+    
+    def get_data_from_tx_buffer(self, length):
+        self.tx_lock.acquire()
+        length = min(length, len(self.tx_buffer))
+        data = self.tx_buffer[:length]
+        self.tx_buffer = self.tx_buffer[length:]
+        self.bytes_sent += length
+        self.tx_lock.release()
+
+    def get_packet(self):
+        chksum_due = False
+
+        if (self.packetid == MAX_PACKET_BEFORE_CHECKSUM ):
+            chksum_due =1
+
+        if (len(self.tx_buffer)==0):
+            chksum_due =1
+
+        if chksum_due:
+            self.packet_id=0
+            id_byte = coco.CHKSUM + self.packet_id
+            msg =b''
+            msg +=self.chksum.to_bytes(32,'little')
+            msg[0]=id_byte.to_bytes(1,'little')
+            self.packet_id = 0
         
+        else:
+            msg=b''
+            id_byte = coco.DATA + self.packet_id
+            msg += id_byte.to_bytes(1,'little')
+            msg +=self.get_data_from_tx_buffer(31)
+            while (len(msg)<32 ):
+                msg+=f0
+            self.chksum ^=int.from_bytes(msg,'little')
+            self.packet_id +=1
+            
+        return msg
+
+    def get_checksum_packet(self):
+        self.packet_id=0

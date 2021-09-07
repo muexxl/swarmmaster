@@ -4,7 +4,7 @@ class CommCodes():
     PONG = 0x05
     
     REGISTRATION_REQUEST = 0x10
-    REGISTRATION_REQUEST_ACK = 0x10
+    REGISTRATION_REQUEST_ACK = 0x11
 
     HELLO = 0x20
 

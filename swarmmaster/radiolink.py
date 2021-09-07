@@ -39,6 +39,7 @@ class Radiolink():
 
     def open_pipes_to_id(self, id: int):
         address= self.config.get_address_from_id(id)
+        
         self.open_reading_and_writing_pipe(address)
         self.radio.stopListening()
 

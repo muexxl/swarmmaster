@@ -17,8 +17,9 @@ class RadioConfig(object):
     
     def get_address_from_id(self, id):
         address = bytearray(3)
-        address[0]=self.addressPrefix
-        address[1:3]=struct.pack('<H',id)
+        #!! reverse byte order!!
+        address[0:2]=struct.pack('<H',id)
+        address[2]=self.addressPrefix
         return (bytes(address))
 
     def get_id_from_address(self, address: bytes):
