@@ -110,6 +110,7 @@ class SwarmMaster():
                 logger.debug(f'Swarmmaster\t| Received answer : {answer}')
             else:
                 self.swarmmanager.report_fail()
+                break
 
         self.radiolink.radio.startListening()
 

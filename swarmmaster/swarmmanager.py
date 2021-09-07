@@ -92,8 +92,8 @@ class SwarmManager:
             c.prio = 0
 
     def report_fail(self):
-        if self.current_client:
-            self.current_client.fail_counter +=1
+        client= self.current_client
+        client.fail_counter +=1
         logger.warning(f'Swarmmanager\t| reported fail {client.fail_counter} for client #{client.id:04x}')
         if client.fail_counter > self.max_fails:
             self.remove_client(client.id)
