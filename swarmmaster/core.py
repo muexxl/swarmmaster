@@ -146,7 +146,7 @@ class SwarmMaster():
         if (now - self.time_at_last_heartbeat
             ) > 2:  #Emit Heartbeat Every two seconds
             self.time_at_last_heartbeat = now
-            heartbeat_msg = b'H'  # Heartbeat starts with 'H' = chr(0x48)
+            heartbeat_msg = b'HRTB'  # Heartbeat starts with 'H' = chr(0x48)
             heartbeat_msg += int(now).to_bytes(4, 'little')
             self.radiolink.send_to_broadcast(heartbeat_msg)
             logger.debug(f'Swarmmaster\t| Sending Heartbeat : {int(now)}')

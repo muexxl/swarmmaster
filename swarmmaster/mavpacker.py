@@ -116,7 +116,7 @@ class Mavpacker(object):
             
     def request_parameters(self, client:SwarmClient):
         logger.info('MAVPACK | Requesting parameters')
-        msg = MAVLink_param_request_list_message(0,0)
+        msg = self.mav.MAVLink_param_request_list_message(0,0)
         client.tx_lock.acquire()
         client.tx_buffer += msg.pack(self.mav)
         client.tx_lock.release()
