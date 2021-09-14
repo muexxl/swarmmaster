@@ -17,9 +17,15 @@ ul =sm.udplistener
 md =sm.mavdistributor
 to = sm.terminaloutput
 
-CFG_EMIT_HEARTBEAT = 1
+CFG_EMIT_HEARTBEAT = 0
+
+DUMMY_MAVLINK_MSG=b'\xfd\x1dDIES_KOENNTE_EINE_MAVLINK_V2_MSG_SEIN\r\n'
+DUMMY_MAVLINK_MSG2=b'\xfd\xa6DIES_KOENNTE_EINE_GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANZ SCHOEN LANGE_MAVLINK_V2_MSG_SEIN\r\n'
+DUMMY_MAVLINK_MSG3=b'\xfd\xaaDIES_KOENNTE_EINE_GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANZ SCHOEN LANGE_MAVLINK_V2_MSG_SEIN'
 
 def run():
+    #sm.swarmmanager.add_client(3)
+    counter=0
     while(1):
         logger.debug('Swarmmaster\t| Checking Radio')
         msg = sm.radiolink.check_radio()
@@ -35,7 +41,9 @@ def run():
             sm.mavpacker.check_client(client)
             #spamming request parameter msgs
             while (len(client.tx_buffer)<100):
-                sm.mavpacker.request_client_id(client)
+                #sm.mavpacker.request_client_id(client)
+                counter +=1
+                client.add_data_to_tx_buffer(DUMMY_MAVLINK_MSG3+f"{counter:04d}\r\n".encode('ascii'))
 
             time.sleep(1)
         else:

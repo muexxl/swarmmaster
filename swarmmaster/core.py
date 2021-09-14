@@ -99,7 +99,6 @@ class SwarmMaster():
 
         for i in range(3):
             msg = client.get_packet()
-            self.radiolink.send(msg)
             logger.debug(
                 f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg}'
             )

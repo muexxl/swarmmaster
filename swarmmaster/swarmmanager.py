@@ -62,7 +62,7 @@ class SwarmManager:
 
 
 
-    def next_client(self):
+    def next_client(self)->SwarmClient:
 
         try:
             self.current_client = sorted(self.clients.values(),key = lambda x:x.prio, reverse=False)[0]

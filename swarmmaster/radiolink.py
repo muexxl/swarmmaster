@@ -22,7 +22,7 @@ class Radiolink():
         self.radio.setChannel(self.config.channel)
         self.radio.setDataRate(RF24_2MBPS)
         self.radio.setPALevel(RF24_PA_MAX)
-        self.radio.setRetries(2,4)
+        self.radio.setRetries(4,5) #delay x 250us , retries
         self.radio.startListening()
         self.set_adresses()
 
