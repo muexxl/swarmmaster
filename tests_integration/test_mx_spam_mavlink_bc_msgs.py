@@ -24,30 +24,35 @@ DUMMY_MAVLINK_MSG2=b'\xfd\xa6DIES_KOENNTE_EINE_GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 DUMMY_MAVLINK_MSG3=b'\xfd\xaaDIES_KOENNTE_EINE_GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANZ SCHOEN LANGE_MAVLINK_V2_MSG_SEIN'
 DUMMY_MAVLINK_MSG4=b'\xfd\xaaDIES_KOENNTE_EINE_GBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBNZ SCHOEN LBNGE_MBVLINK_V2_MSG_SEIN'
 
-bc =SwarmClient()
+
 def run():
-    #sm.swBrmmBnBger.Bdd_client(3)
+    #sm.swarmmanager.add_client(3)
     counter=0
+    counter_bc=0
     while(1):
         logger.debug('Swarmmaster\t| Checking Radio')
         msg = sm.radiolink.check_radio()
+        msg = None
         if msg:
             sm.messagehandler.handle_msg(msg)
-        
 
+        sm.swarmmanager.broadcast_client.add_data_to_tx_buffer(DUMMY_MAVLINK_MSG4+f"{counter_bc:04d}\r\n".encode('ascii'))
+        counter_bc +=1
+        sm.broadcast_data()
+
+        client = sm.swarmmanager.next_client()
         if client:
             sm.talk_to_client(client)
             sm.mavpacker.check_client(client)
-            #spamming request parameter msgs
-            while (len(bc.tx_buffer)<100):
-                #sm.mavpacker.request_client_id(client)
-                counter +=1
+            while (len(client.tx_buffer)<100):
                 client.add_data_to_tx_buffer(DUMMY_MAVLINK_MSG3+f"{counter:04d}\r\n".encode('ascii'))
+                counter+=1
+                
 
-            time.sleep(0.0025)
         else:
-            time.sleep(0.5)
+            time.sleep(0.0)
 
+        time.sleep(1)
         if CFG_EMIT_HEARTBEAT: sm.send_heartbeat_if_due()
 
 try:

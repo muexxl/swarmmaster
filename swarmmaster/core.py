@@ -94,7 +94,7 @@ class SwarmMaster():
         if (not client.registration_request_ack_sent):
             self.send_registration_request_ack(client)
             return
-            
+
         self.radiolink.open_pipes_to_id(client.id)
 
         for i in range(3):
@@ -112,6 +112,30 @@ class SwarmMaster():
                 break
 
         self.radiolink.radio.startListening()
+
+    def broadcast_data(self):
+        self.radiolink.start_broadcast()
+        bc = self.swarmmanager.broadcast_client
+        packet = bc.get_bc_packet()
+        while packet[
+                0] != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum and packet id == 0
+            for i in range(CFB_BROADCAST_REPETITIONS):
+                self.radiolink.send_to_broadcast(packet)
+            packet = bc.get_bc_packet()
+        self.radiolink.stop_broadcast()
+
+
+    def broadcast_check(self):
+        self.radiolink.start_broadcast()
+        msg = bytearray(32)
+        msg[0] = coco.BROADCAST_CHECK
+        for i in range(0x100):
+            msg[4] = i #id ist im 2. 32 bit integer. logisch. oder?
+            self.radiolink.send_to_broadcast(msg)
+            self.swarmmanager.broadcast_client.bytes_sent+=32
+
+        
+        self.radiolink.stop_broadcast()
 
     def broadcast_rtcm_data_from_udp_listener(self):
         #logger.debug(f'Swarmmaster\t| Called function broadcast ...')

@@ -2,6 +2,7 @@
 class CommCodes():
     PING = 0x04
     PONG = 0x05
+    BROADCAST_CHECK = 0x06
     
     REGISTRATION_REQUEST = 0x10
     REGISTRATION_REQUEST_ACK = 0x11

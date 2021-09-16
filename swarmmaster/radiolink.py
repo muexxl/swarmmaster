@@ -18,11 +18,11 @@ class Radiolink():
         self.radio.setAutoAck(1)
         self.radio.enableDynamicPayloads()
         self.radio.enableAckPayload()
-        #radio.enableDynamicAck()
+        self.radio.enableDynamicAck()
         self.radio.setChannel(self.config.channel)
         self.radio.setDataRate(RF24_2MBPS)
-        self.radio.setPALevel(RF24_PA_MAX)
-        self.radio.setRetries(4,5) #delay x 250us , retries
+        self.radio.setPALevel(RF24_PA_MIN)
+        self.radio.setRetries(15,15) #delay x 250us , retries
         self.radio.startListening()
         self.set_adresses()
 
@@ -58,11 +58,14 @@ class Radiolink():
         self.radio.startListening()
 
     def send_to_broadcast(self, data:bytearray):
+        self.radio.write(data,1) # use multicast to signal noAck. not really faster :// approx 30 ms
+        time.sleep(0.00001) 
+
+    def start_broadcast(self):
         self.open_reading_and_writing_pipe(self.config.get_broadcast_address())
         self.radio.stopListening()
-      
-        self.radio.write(data,1) # use multicast to signal noAck. not really faster :// approx 30 ms
-        
+
+    def stop_broadcast(self):
         self.radio.startListening()
 
     def check_radio(self):

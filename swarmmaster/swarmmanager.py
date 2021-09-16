@@ -15,6 +15,7 @@ class SwarmManager:
         self.clients = dict()
         self.current_client= None
         self.clients_lock = threading.Lock()
+        self.broadcast_client = SwarmClient()
         
     def add_client(self,id, client=None):
         returnvalue = False
