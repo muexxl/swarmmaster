@@ -1,6 +1,7 @@
 from  RF24 import *
 from .radioconfig import *
 from datetime import datetime
+from .configuration import *
 
 import time
 
@@ -21,8 +22,9 @@ class Radiolink():
         self.radio.enableDynamicAck()
         self.radio.setChannel(self.config.channel)
         self.radio.setDataRate(RF24_2MBPS)
-        self.radio.setPALevel(RF24_PA_MIN)
-        self.radio.setRetries(15,15) #delay x 250us , retries
+        self.radio.setPALevel(RF24_PA_MAX)
+        self.radio.setRetries(CFG_RADIO_DELAY,CFG_RADIO_RETRIES) #delay x 250us , retries
+        self.radio.setCRCLength(RF24_CRC_16)
         self.radio.startListening()
         self.set_adresses()
 

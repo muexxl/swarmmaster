@@ -58,9 +58,6 @@ class SwarmMaster():
             if msg:
                 self.messagehandler.handle_msg(msg)
 
-            if self.udplistener.data_available:
-                self.broadcast_rtcm_data_from_udp_listener()
-
             client = self.swarmmanager.next_client()
             if client:
                 self.talk_to_client(client)
@@ -112,57 +109,43 @@ class SwarmMaster():
                 break
 
         self.radiolink.radio.startListening()
-
+        
     def broadcast_data(self):
-        self.radiolink.start_broadcast()
         bc = self.swarmmanager.broadcast_client
         packet = bc.get_bc_packet()
-        while packet[
-                0] != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum and packet id == 0
-            for i in range(CFB_BROADCAST_REPETITIONS):
-                self.radiolink.send_to_broadcast(packet)
+        packets = []
+        while (packet[0] &0xf0) != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum !
+            packets.append(packet)
             packet = bc.get_bc_packet()
-        self.radiolink.stop_broadcast()
+        
+        checksum_packet= packet
+        if not len(packets):
+            return
+        
+        self.radiolink.start_broadcast()
+        
+        for i in range(CFG_BROADCAST_REPETITIONS):
+            for p in packets:
+                self.radiolink.send_to_broadcast(p)
 
+        for i in range(CFG_BROADCAST_REPETITIONS*2):
+            self.radiolink.send_to_broadcast(checksum_packet)
+
+        self.radiolink.stop_broadcast()
 
     def broadcast_check(self):
         self.radiolink.start_broadcast()
         msg = bytearray(32)
         msg[0] = coco.BROADCAST_CHECK
         for i in range(0x100):
-            msg[4] = i #id ist im 2. 32 bit integer. logisch. oder?
+            msg[4] = i  #id ist im 2. 32 bit integer. logisch. oder?
             self.radiolink.send_to_broadcast(msg)
-            self.swarmmanager.broadcast_client.bytes_sent+=32
-
-        
+            self.swarmmanager.broadcast_client.bytes_sent += 32
         self.radiolink.stop_broadcast()
 
     def broadcast_rtcm_data_from_udp_listener(self):
         #logger.debug(f'Swarmmaster\t| Called function broadcast ...')
-        self.udplistener.rx_lock.acquire()
-        data = self.udplistener.rx_buf[:]
-        self.udplistener.rx_buf = b''
-        self.udplistener.data_available = False
-        self.udplistener.rx_lock.release()
-
-        self.terminaloutput.stats_bytes_broadcasted += len(data)
-        counter = 0
-        checksum = 0
-        while data:
-            prefix = (0xd0 + (counter % 15)).to_bytes(1, 'big')
-            msg = prefix + data[:31]  #msg=RTCM_PREFIX + data[:31]
-            self.radiolink.send_to_broadcast(msg)
-            if (len(data) < 31):
-                data += b'\x00' * (31 - len(data))
-            checksum ^= int.from_bytes(data[:31], 'big')
-            counter += 1
-            logger.info(f'Swarmmaster\t| publishing via broadcast: {msg}')
-            data = data[31:]
-
-        prefix = b'\xdf'
-        msg = prefix + checksum.to_bytes(31, 'big')
-        self.radiolink.send_to_broadcast(msg)
-        logger.info(f'Swarmmaster\t| publishing Checksum via broadcast: {msg}')
+        pass
 
     def send_heartbeat_if_due(self):
         now = time.time()
@@ -171,7 +154,9 @@ class SwarmMaster():
             self.time_at_last_heartbeat = now
             heartbeat_msg = b'H'  # Heartbeat starts with 'H' = chr(0x48)
             heartbeat_msg += int(now).to_bytes(4, 'little')
+            self.radiolink.start_broadcast()
             self.radiolink.send_to_broadcast(heartbeat_msg)
+            self.radiolink.stop_broadcast()
             logger.debug(f'Swarmmaster\t| Sending Heartbeat : {int(now)}')
 
     def ping_all_clients(self):
