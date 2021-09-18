@@ -94,7 +94,7 @@ class SwarmMaster():
 
         self.radiolink.open_pipes_to_id(client.id)
 
-        for i in range(3):
+        for i in range(MAX_PACKET_BEFORE_CHECKSUM+1): #send complete data packets!!
             msg = client.get_packet()
             logger.debug(
                 f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg}'

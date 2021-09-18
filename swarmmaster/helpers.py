@@ -10,6 +10,14 @@ class EmptyMessageException(Exception):
     def __init__(self, msg=""):
         self.msg =msg
 
+class ScopedLock(object):
+    def __init__(self, lock: threading.Lock):
+        self.lock = lock
+        self.lock.acquire()
+
+    def __del__(self):
+        self.lock.release()
+
 def crc16(data : bytearray, offset , length):
     if data is None or offset < 0 or offset > len(data)- 1 and offset+length > len(data):
         return 0

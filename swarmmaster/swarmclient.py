@@ -2,9 +2,10 @@ from .commcodes import coco
 import threading
 import logging
 from .configuration import *
+from .helpers import *
+from .packetbuffer import 
 
 logger = logging.getLogger(__name__)
-
 
 class SwarmClient:
     max_rx_buf = 2**20
@@ -22,6 +23,7 @@ class SwarmClient:
 
         self.rx_buffer = bytearray()
         self.tx_buffer = bytearray()
+        self.packet_buffer= PacketBuffer()
         self.last_msg_id = coco.HELLO
         self.fail_counter = 0
         self.prio = 0  # Prio is 0 as base. Prio 0 means highest.  increase +1 for everytime the client is talked to. regular reductions ? maybe.
@@ -190,3 +192,5 @@ class SwarmClient:
             self.packet_id += 1
 
         return msg
+
+    

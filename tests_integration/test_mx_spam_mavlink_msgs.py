@@ -33,13 +33,13 @@ def run():
         msg = sm.radiolink.check_radio()
         if msg:
             sm.messagehandler.handle_msg(msg)
-        
+        client = sm.swarmmanager.next_client()
 
         if client:
             sm.talk_to_client(client)
             sm.mavpacker.check_client(client)
             #spamming request parameter msgs
-            while (len(bc.tx_buffer)<100):
+            while (len(client.tx_buffer)<100):
                 #sm.mavpacker.request_client_id(client)
                 counter +=1
                 client.add_data_to_tx_buffer(DUMMY_MAVLINK_MSG3+f"{counter:04d}\r\n".encode('ascii'))
@@ -49,7 +49,7 @@ def run():
             time.sleep(0.5)
 
         if CFG_EMIT_HEARTBEAT: sm.send_heartbeat_if_due()
-
+    
 try:
     run()
 
