@@ -1,6 +1,7 @@
 from .swarmclient import SwarmClient
 from .swarmmanager import SwarmManager
 from .udpserver import UDPServer
+from .commcodes import coco
 
 from . import ardupilotmega as mavlink
 
@@ -29,10 +30,12 @@ class Mavpacker(object):
         
     def check_client(self, client: SwarmClient):
         self.client = client
-        self.mav.buf_index = 0
-        self.mav.buf.clear()
+        client.packet_buffer.process_packet_buffer()
+        if (not len(client.rx_buffer)):
+            return
         client.rx_lock.acquire()
         self.mav.buf = client.rx_buffer
+        self.mav.buf_index = 0
         self.parse_mav_buffer()
         
         #remove buffer elements that have been already parsed

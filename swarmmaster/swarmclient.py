@@ -46,15 +46,20 @@ class SwarmClient:
 
     def get_stats(self):
         self.rx_lock.acquire()
-        bytes_received = self.bytes_received
-        self.bytes_received = 0
+        received_bytes_brutto = self.packet_buffer.received_bytes_brutto
+        self.packet_buffer.received_bytes_brutto =0
+        received_bytes_netto = self.packet_buffer.received_bytes_netto
+        self.packet_buffer.received_bytes_netto = 0
+        received_packets= self.packet_buffer.received_packets
+        lost_packets = self.packet_buffer.lost_packets
+        restored_packets = self.packet_buffer.restored_packets
         self.rx_lock.release()
 
         self.tx_lock.acquire()
         bytes_sent = self.bytes_sent
         self.bytes_sent = 0
         self.tx_lock.release()
-        return bytes_received, bytes_sent
+        return bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,restored_packets ,lost_packets
 
     def get_tx_buffer_size(self):
         return len(self.tx_buffer)

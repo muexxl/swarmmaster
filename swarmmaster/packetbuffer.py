@@ -13,14 +13,15 @@ class PacketBuffer(object):
         self.available_packets={}
         self.last_packet=-1
         self.checksum=0
-        self.stream_buffer=b''
+        self.stream_buffer=bytearray()
         self.packet_buffer=[]
         self.packet_buffer_lock=threading.Lock()
         self.stream_buffer_lock=threading.Lock()
         self.received_bytes_brutto=0
-        self.received_bytes=0
+        self.received_bytes_netto=0
         self.received_packets=0
         self.lost_packets=0
+        self.restored_packets=0
 
     def add_packet(self, packet:DataPacket):
         #adding packets. no checking or anything
@@ -56,7 +57,7 @@ class PacketBuffer(object):
                 #bad we missed at least the checksum
                 #reset message buffer AND delete all packets so far!!
                 self.stream_buffer_lock.acquire()
-                self.stream_buffer=b''
+                self.stream_buffer=bytearray()
                 self.stream_buffer_lock.release()
                 self.reset()
         
@@ -71,7 +72,7 @@ class PacketBuffer(object):
             self.stream_buffer += packet.data
             self.stream_buffer_lock.release()
             self.last_packet = packet.id
-            self.received_bytes+=31
+            self.received_bytes_netto+=31
             packet.is_processed = True
             
     
@@ -82,7 +83,7 @@ class PacketBuffer(object):
     def is_packet_in_availables(self, packet: DataPacket):
         return packet.id in self.available_packets.keys()
 
-    def are_packets_identical(p1: DataPacket, p2: DataPacket):
+    def are_packets_identical(self, p1: DataPacket, p2: DataPacket):
         return p1.data==p2.data
 
     def reset(self):
@@ -98,6 +99,18 @@ class PacketBuffer(object):
         elif packets == (len(self.available_packets)+1):
             self.restore_packet(checksum_packet)
             self.process_all_available_packets()
+        elif packets == 0:
+            available_packets = len(self.available_packets)
+            if available_packets==0:
+                pass
+                #perfect. this is an empty checksum all is perfect
+            else:
+                logger.error(f"[PacketBuffer] previous checksum packet was lost" )
+                self.stream_buffer_lock.acquire()
+                self.stream_buffer=bytearray()
+                self.stream_buffer_lock.release()
+                self.reset()
+                
         else:
             lostPackets = packets-len(self.available_packets)
             logger.error(f"[PacketBuffer] {lostPackets} out of {packets} are lost. restauration was not possible" )       
@@ -117,6 +130,7 @@ class PacketBuffer(object):
         msg.append(coco.DATA | missing_id)
         msg+= checksum.to_bytes(31,'little')
         self.available_packets[missing_id]=DataPacket(msg)
+        self.restored_packets +=1
 
 
                 

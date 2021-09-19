@@ -44,11 +44,10 @@ class MessageHandler(object):
         elif message_id & 0xf0 ==coco.DATA:
             self.swarmmanager.current_client.add_msg_to_packet_buffer(msg)
         elif message_id & 0xf0 == coco.CHKSUM:
-            self.swarmmanager.current_client.add_msg_to_packet_buffer(msg
+            self.swarmmanager.current_client.add_msg_to_packet_buffer(msg)
         else:
-            raise UnknownMessageException(
-                f"Messagehandler\t| Received Unknown:{msg.hex()}")
-
+            logger.error(f"[MessageHandler] Unknown Message received{msg.hex()}")
+             
     def handle_config_msg(self, msg):
         config_code = msg[1]
         if config_code == coco.REGISTRATION_REQUEST:
