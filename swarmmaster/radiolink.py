@@ -46,8 +46,9 @@ class Radiolink():
         self.radio.stopListening()
 
     def send(self, data: bytearray):
-        return self.radio.write(data)
-        
+        success= self.radio.write(data)
+        #time.sleep(0.001) 
+        return success
 
     def send_to_address(self, address: bytes, data:bytearray):
         self.open_reading_and_writing_pipe(address)

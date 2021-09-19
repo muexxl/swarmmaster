@@ -53,13 +53,14 @@ class SwarmClient:
         received_packets= self.packet_buffer.received_packets
         lost_packets = self.packet_buffer.lost_packets
         restored_packets = self.packet_buffer.restored_packets
+        double_packets = self.packet_buffer.double_packets
         self.rx_lock.release()
 
         self.tx_lock.acquire()
         bytes_sent = self.bytes_sent
         self.bytes_sent = 0
         self.tx_lock.release()
-        return bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,restored_packets ,lost_packets
+        return bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets
 
     def get_tx_buffer_size(self):
         return len(self.tx_buffer)

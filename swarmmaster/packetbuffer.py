@@ -20,6 +20,7 @@ class PacketBuffer(object):
         self.received_bytes_brutto=0
         self.received_bytes_netto=0
         self.received_packets=0
+        self.double_packets=0
         self.lost_packets=0
         self.restored_packets=0
 
@@ -51,7 +52,7 @@ class PacketBuffer(object):
     def add_to_availables(self, new_packet: DataPacket):
         if self.is_packet_in_availables(new_packet):
             if self.are_packets_identical(new_packet,self.available_packets[new_packet.id]):
-                #double sending. ignore.
+                self.double_packets+=1
                 return 
             else:
                 #bad we missed at least the checksum
@@ -93,28 +94,41 @@ class PacketBuffer(object):
 
     def handle_checksum_packet(self,checksum_packet:DataPacket):
         packets = checksum_packet.id
-        if packets==len(self.available_packets):
+        available_packets = len(self.available_packets)
+        if packets==available_packets:
             pass
             #perfect, all good :)
-        elif packets == (len(self.available_packets)+1):
+        elif packets == available_packets+1:
+            #restore packet
             self.restore_packet(checksum_packet)
             self.process_all_available_packets()
+            self.lost_packets +=1
         elif packets == 0:
-            available_packets = len(self.available_packets)
+            
             if available_packets==0:
-                pass
                 #perfect. this is an empty checksum all is perfect
+                pass
             else:
                 logger.error(f"[PacketBuffer] previous checksum packet was lost" )
                 self.stream_buffer_lock.acquire()
                 self.stream_buffer=bytearray()
                 self.stream_buffer_lock.release()
                 self.reset()
+                self.lost_packets+=1
                 
+        elif available_packets==0:
+            #double sending of checksum
+            self.double_packets+=1
         else:
             lostPackets = packets-len(self.available_packets)
+            if lostPackets<=0:
+                lostPackets=len(self.available_packets)+1
             logger.error(f"[PacketBuffer] {lostPackets} out of {packets} are lost. restauration was not possible" )       
             self.lost_packets+=lostPackets
+            self.stream_buffer_lock.acquire()
+            self.stream_buffer=bytearray()
+            self.stream_buffer_lock.release()
+
         self.reset()
 
     def restore_packet(self,checksum_packet:DataPacket):

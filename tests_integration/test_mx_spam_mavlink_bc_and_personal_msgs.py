@@ -51,7 +51,7 @@ def run():
         else:
             time.sleep(0.0)
 
-        time.sleep(1) #ueberforderung der seriellen Ausgabe vermeiden durch kuenstliche Pause
+        time.sleep(0.01) #ueberforderung der seriellen Ausgabe vermeiden durch kuenstliche Pause
         if CFG_EMIT_HEARTBEAT: sm.send_heartbeat_if_due()
 
 try:

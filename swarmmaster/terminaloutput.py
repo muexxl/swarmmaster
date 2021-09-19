@@ -33,12 +33,12 @@ class TerminalOutput(threading.Thread):
         total_tx = 0
         print ('-'*80)
         print ('\tClient#\tTX\tRX - Bytes \t RX-Packets')
-        print ('\t       \tbrutto\tbrutto\tnetto\ttotal\tlost\trestored')
-        print ('\t       \t[Bps]\t[Bps]\t[Bps]\t[#]\t[#]\t[#]')
+        print ('\t       \tbrutto\tbrutto\tnetto\ttotal\tdouble\tlost\trestored')
+        print ('\t       \t[Bps]\t[Bps]\t[Bps]\t[#]\t[#]\t[#]\t[#]')
         self.swarmmanager.clients_lock.acquire()
         for c in self.swarmmanager.clients.values():
-            bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,restored_packets ,lost_packets = c.get_stats()
-            print (f'\t{c.id:04x} \t{bytes_sent/self.sleep_time} \t{received_bytes_brutto/self.sleep_time}\t{received_bytes_netto/self.sleep_time} \t{received_packets} \t {lost_packets}\t {restored_packets} \t ')
+            bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets = c.get_stats()
+            print (f'\t{c.id:04x} \t{bytes_sent/self.sleep_time} \t{received_bytes_brutto/self.sleep_time}\t{received_bytes_netto/self.sleep_time} \t{received_packets}\t {double_packets}\t {lost_packets}\t {restored_packets} \t ')
             total_rx += received_bytes_brutto
             total_tx += bytes_sent
         print ('-'*80)
@@ -48,7 +48,7 @@ class TerminalOutput(threading.Thread):
 
         #Broadcasting stats
         bc = self.swarmmanager.broadcast_client
-        bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,restored_packets ,lost_packets = bc.get_stats()
+        bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets= bc.get_stats()
         print (f'\nBroadcast  \t{bytes_sent/self.sleep_time}  ') 
         
     

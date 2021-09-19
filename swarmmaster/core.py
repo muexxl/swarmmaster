@@ -107,7 +107,7 @@ class SwarmMaster():
             else:
                 self.swarmmanager.report_fail()
                 break
-
+            
         self.radiolink.radio.startListening()
         
     def broadcast_data(self):
