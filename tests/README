@@ -1,0 +1,5 @@
+if tests are not available
+
+1. ensure venv is activated
+2. command for for testing AND test discovery:
+    python -m unittest

@@ -1,4 +1,5 @@
 import crccheck
+import threading 
 
 class ClientException(Exception):
     pass

@@ -41,8 +41,10 @@ class MessageHandler(object):
         message_id = msg[0]
         if message_id == coco.REGISTRATION_REQUEST:
             self.handle_registration_request(msg)
-        elif message_id < coco.MAX_MSG_ID:
-            self.handle_data_msg(msg)
+        elif message_id & 0xf0 ==coco.DATA:
+            self.swarmmanager.current_client.add_msg_to_packet_buffer(msg)
+        elif message_id & 0xf0 == coco.CHKSUM:
+            self.swarmmanager.current_client.add_msg_to_packet_buffer(msg
         else:
             raise UnknownMessageException(
                 f"Messagehandler\t| Received Unknown:{msg.hex()}")

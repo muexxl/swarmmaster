@@ -77,7 +77,7 @@ class Mavpacker(object):
                         logger.debug(f'MAVPACK | Sending via udp RAW {msg.get_msgbuf()}')
                     
                 else:
-                    logger.warn(f'MAVPACKER|  Client #{client.id:04x} tried to send as #{msg._header.srcSystem:02x} MSG: {msg.to_json()}')
+                    logger.warning(f'MAVPACKER|  Client #{client.id:04x} tried to send as #{msg._header.srcSystem:02x} MSG: {msg.to_json()}')
                     client.mav_id_correct = False
                     self.set_client_id(client)
         
