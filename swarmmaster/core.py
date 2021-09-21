@@ -53,8 +53,10 @@ class SwarmMaster():
     def run(self):
         logger.info('Starting up Swarmmaster')
         while 1:
-            logger.debug('Swarmmaster\t| Checking Radio')
+            #logger.debug('Swarmmaster\t| Checking Radio')
             msg = self.radiolink.check_radio()
+            self.broadcast_data()
+
             if msg:
                 self.messagehandler.handle_msg(msg)
 
@@ -64,6 +66,7 @@ class SwarmMaster():
                 self.mavpacker.check_client(client)
             else:
                 time.sleep(0.5)
+            
 
             if CFG_EMIT_HEARTBEAT: self.send_heartbeat_if_due()
 
@@ -94,41 +97,45 @@ class SwarmMaster():
 
         self.radiolink.open_pipes_to_id(client.id)
 
-        for i in range(MAX_PACKET_BEFORE_CHECKSUM+1): #send complete data packets!!
+
+        for i in range(MAX_PACKET_BEFORE_CHECKSUM +1):  #send complete data packets!!
             msg = client.get_packet()
-            logger.debug(
-                f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg}'
-            )
+            if msg[0] == 0xc0:
+                msg = msg[:1]
+            else:
+                logger.debug(
+                    f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg[:10]}'
+                )
+            #time.sleep(0.01)
             success = self.radiolink.send(msg)
             if success:
                 answer = self.radiolink.check_radio()
                 self.messagehandler.handle_msg(answer)
-                logger.debug(f'Swarmmaster\t| Received answer : {answer}')
             else:
                 self.swarmmanager.report_fail()
                 break
-            
+
         self.radiolink.radio.startListening()
-        
+
     def broadcast_data(self):
         bc = self.swarmmanager.broadcast_client
         packet = bc.get_bc_packet()
         packets = []
-        while (packet[0] &0xf0) != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum !
+        while (packet[0] & 0xf0) != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum !
             packets.append(packet)
             packet = bc.get_bc_packet()
-        
-        checksum_packet= packet
+
+        checksum_packet = packet
         if not len(packets):
             return
-        
+
         self.radiolink.start_broadcast()
-        
+
         for i in range(CFG_BROADCAST_REPETITIONS):
             for p in packets:
                 self.radiolink.send_to_broadcast(p)
 
-        for i in range(CFG_BROADCAST_REPETITIONS*2):
+        for i in range(CFG_BROADCAST_REPETITIONS * 2):
             self.radiolink.send_to_broadcast(checksum_packet)
 
         self.radiolink.stop_broadcast()

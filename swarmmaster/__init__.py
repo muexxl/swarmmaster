@@ -30,7 +30,7 @@ def set_logger_level():
 def set_logger_level_debug():
     logger.level=logging.DEBUG
 
-logging.basicConfig(format='[%(levelname)8s]\t%(asctime)s: %(message)s ', datefmt='%d.%m.%Y %H:%M:%S', filename='swarmmaster.log', filemode='a', level=logging.INFO)
+logging.basicConfig(format='[%(levelname)8s]\t%(asctime)s: %(message)s ', datefmt='%d.%m.%Y %H:%M:%S', filename='/home/1drone/scripts/swarmmaster/swarmmaster.log', filemode='a', level=logging.INFO)
 logger = logging.getLogger(__name__)
 set_logger_level()
 

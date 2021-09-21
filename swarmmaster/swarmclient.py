@@ -22,9 +22,6 @@ class SwarmClient:
         self.registration_request_ack_sent = False
 
         self.packet_buffer= PacketBuffer()
-        self.rx_buffer = self.packet_buffer.stream_buffer
-        self.rx_lock = self.packet_buffer.stream_buffer_lock
-
         self.tx_buffer = bytearray()
         self.tx_lock = threading.Lock()
 
@@ -34,18 +31,19 @@ class SwarmClient:
         self.mav_id_correct = False
         self.mav_id_request_sent = 0
 
-        
-        
-        
+        self.empty_packets_received =0 
+        self.packets_sent =0
         self.bytes_received = 0
         self.bytes_sent = 0
+
 
         self.packet_id = 0
         self.chksum = 0
         self.chksum_due = 0
 
     def get_stats(self):
-        self.rx_lock.acquire()
+        self.packet_buffer.packet_buffer_lock.acquire()
+        self.packet_buffer.stream_buffer_lock.acquire()
         received_bytes_brutto = self.packet_buffer.received_bytes_brutto
         self.packet_buffer.received_bytes_brutto =0
         received_bytes_netto = self.packet_buffer.received_bytes_netto
@@ -54,7 +52,8 @@ class SwarmClient:
         lost_packets = self.packet_buffer.lost_packets
         restored_packets = self.packet_buffer.restored_packets
         double_packets = self.packet_buffer.double_packets
-        self.rx_lock.release()
+        self.packet_buffer.packet_buffer_lock.release()
+        self.packet_buffer.stream_buffer_lock.release()
 
         self.tx_lock.acquire()
         bytes_sent = self.bytes_sent

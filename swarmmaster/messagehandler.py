@@ -32,13 +32,16 @@ class MessageHandler(object):
         self.db = self.droneDB
 
     def handle_msg(self, msg):
+
         if not len(msg):
             # raise EmptyMessageException(
             #     'Messagehandler\t| Received blank message. Unable to handle blank message'
             # )
+            
             return
 
         message_id = msg[0]
+        #logger.info(f'[MessageHandler] Received message : {msg[:10]}')
         if message_id == coco.REGISTRATION_REQUEST:
             self.handle_registration_request(msg)
         elif message_id & 0xf0 ==coco.DATA:

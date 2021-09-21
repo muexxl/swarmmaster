@@ -16,6 +16,7 @@
             "type": "python",
             "request": "launch",
             "program": "swarmmaster-run",
+            "args": ["-d"],
             "console": "integratedTerminal"
         }
     ]

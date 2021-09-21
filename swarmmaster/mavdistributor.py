@@ -72,13 +72,19 @@ class Mavdistributor(threading.Thread):
         try:
             logging.debug(f'MAVDISTRIBUTOR | Handling incoming udp messsage {msg.to_json()}')
             msg_dict = msg.to_dict()
-            target_system = msg_dict['target_system']
-            if self.swarmmanager.is_client(target_system):
-                client = self.swarmmanager.get_client(target_system)
-                client.add_data_to_tx_buffer(msg.get_msgbuf())
-            else :
-                logger.warn(f'MAVDISTRIBUTOR | Received Message for Not Registered Client #{target_system:04x}. Message is beeing dropped')
-                logger.warn(f'MAVDISTRIBUTOR | Message : {msg.to_json()}')
+            if msg_dict['mavpackettype']=="HEARTBEAT":
+                logger.debug("MAVDISTRIBUTOR | Received HEARTBEAT msg")
+            elif msg_dict['mavpackettype']=="GPS_RTCM_DATA":
+                self.swarmmanager.broadcast_client.add_data_to_tx_buffer(msg.get_msgbuf())
+                logger.debug("MAVDISTRIBUTOR | Received GPS_RTCM_DATA msg")
+            elif 'target_system' in msg_dict.keys():
+                target_system = msg_dict['target_system']
+                if self.swarmmanager.is_client(target_system):
+                    client = self.swarmmanager.get_client(target_system)
+                    client.add_data_to_tx_buffer(msg.get_msgbuf())
+                else :
+                    logger.warn(f'MAVDISTRIBUTOR | Received Message for Not Registered Client #{target_system:04x}. Message is beeing dropped')
+                    logger.warn(f'MAVDISTRIBUTOR | Message : {msg.to_json()}')
         except KeyError:
             logger.debug(f'MAVDISTRIBUTOR | Keyerror in handle_mav_udp_msg')  
             logger.debug(f'MAVDISTRIBUTOR | Message is {msg.to_json()}') 

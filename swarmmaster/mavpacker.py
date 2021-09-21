@@ -30,18 +30,18 @@ class Mavpacker(object):
         
     def check_client(self, client: SwarmClient):
         self.client = client
-        client.packet_buffer.process_packet_buffer()
-        if (not len(client.rx_buffer)):
+        packet_buffer=client.packet_buffer
+        packet_buffer.process_packet_buffer()
+        if (not len(packet_buffer.stream_buffer)):
             return
-        client.rx_lock.acquire()
-        self.mav.buf = client.rx_buffer
+        packet_buffer.stream_buffer_lock.acquire()
+        self.mav.buf = packet_buffer.stream_buffer
         self.mav.buf_index = 0
         self.parse_mav_buffer()
         
         #remove buffer elements that have been already parsed
-        client.rx_buffer = self.mav.buf[self.mav.buf_index:]
-        
-        client.rx_lock.release()
+        packet_buffer.stream_buffer = self.mav.buf[self.mav.buf_index:]
+        packet_buffer.stream_buffer_lock.release()
 
     def parse_mav_buffer(self):
         continue_parsing = True
@@ -69,7 +69,7 @@ class Mavpacker(object):
             client =  self.client
             
             if msg.get_msgId() == -1 : # Bad Data!
-                logger.info(f'MAVPACK | Dropping data because of BAD DATA Mavlink Message:{msg.get_msgbuf()}')
+                logger.debug(f'MAVPACK | Dropping data because of BAD DATA Mavlink Message:{msg.get_msgbuf()}')
             else:
                 if msg._header.srcSystem == client.id:
                     client.mav_id_correct = True

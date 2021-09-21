@@ -47,7 +47,6 @@ class Radiolink():
 
     def send(self, data: bytearray):
         success= self.radio.write(data)
-        #time.sleep(0.001) 
         return success
 
     def send_to_address(self, address: bytes, data:bytearray):

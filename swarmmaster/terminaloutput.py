@@ -38,7 +38,8 @@ class TerminalOutput(threading.Thread):
         self.swarmmanager.clients_lock.acquire()
         for c in self.swarmmanager.clients.values():
             bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets = c.get_stats()
-            print (f'\t{c.id:04x} \t{bytes_sent/self.sleep_time} \t{received_bytes_brutto/self.sleep_time}\t{received_bytes_netto/self.sleep_time} \t{received_packets}\t {double_packets}\t {lost_packets}\t {restored_packets} \t ')
+            print (f'\t{c.id:04x} \t{bytes_sent/self.sleep_time} \t{received_bytes_brutto/self.sleep_time}\t{received_bytes_netto/self.sleep_time} \t{received_packets}\t {double_packets}\t {lost_packets}\t {restored_packets} \t{c.packet_buffer.packet_history} ')
+            
             total_rx += received_bytes_brutto
             total_tx += bytes_sent
         print ('-'*80)
@@ -51,6 +52,7 @@ class TerminalOutput(threading.Thread):
         bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets= bc.get_stats()
         print (f'\nBroadcast  \t{bytes_sent/self.sleep_time}  ') 
         
+
     
 
     def print_time(self):
