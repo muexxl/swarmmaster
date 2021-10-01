@@ -3,7 +3,7 @@ from .swarmmanager import SwarmManager
 from .udpserver import UDPServer
 from .commcodes import coco
 
-from . import ardupilotmega as mavlink
+from . import onedrone as mavlink
 
 
 import struct
