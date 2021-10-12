@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class SwarmManager:  
     min_prio = 0
     max_prio = 10
-    max_fails = 5
+    max_fails = 50
 
 
     def __init__(self):

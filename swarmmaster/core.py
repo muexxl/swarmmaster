@@ -156,8 +156,7 @@ class SwarmMaster():
 
     def send_heartbeat_if_due(self):
         now = time.time()
-        if (now - self.time_at_last_heartbeat
-            ) > 2:  #Emit Heartbeat Every two seconds
+        if (now - self.time_at_last_heartbeat) > 2:  #Emit Heartbeat Every two seconds
             self.time_at_last_heartbeat = now
             heartbeat_msg = b'H'  # Heartbeat starts with 'H' = chr(0x48)
             heartbeat_msg += int(now).to_bytes(4, 'little')

@@ -75,7 +75,11 @@ class Mavdistributor(threading.Thread):
             if msg_dict['mavpackettype']=="HEARTBEAT":
                 logger.debug("MAVDISTRIBUTOR | Received HEARTBEAT msg")
             elif msg_dict['mavpackettype']=="GPS_RTCM_DATA":
-                self.swarmmanager.broadcast_client.add_data_to_tx_buffer(msg.get_msgbuf())
+                try:
+                    self.swarmmanager.clients[4].add_data_to_tx_buffer(msg.get_msgbuf())
+                except:
+                    self.swarmmanager.broadcast_client.add_data_to_tx_buffer(msg.get_msgbuf())
+
                 logger.debug("MAVDISTRIBUTOR | Received GPS_RTCM_DATA msg")
             elif msg_dict['mavpackettype']=="MISSION_SYNC_REL":
                 self.swarmmanager.broadcast_client.add_data_to_tx_buffer(msg.get_msgbuf())
