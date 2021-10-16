@@ -85,6 +85,7 @@ class SwarmMaster():
         )
 
         success = self.radiolink.send(msg)
+
         client.registration_request_ack_sent = True
 
         self.radiolink.radio.startListening()
@@ -120,12 +121,14 @@ class SwarmMaster():
     def broadcast_data(self):
         bc = self.swarmmanager.broadcast_client
         packet = bc.get_bc_packet()
-        packets = []
-        while (packet[0] & 0xf0) != coco.BROADCAST_CHKSUM:  #\x80 means broadcast checksum !
+        packets = [] #initialize empty list
+
+        while (packet[0] & 0xf0) != coco.BROADCAST_CHKSUM:  #add packets to list until checksum package is reached
             packets.append(packet)
             packet = bc.get_bc_packet()
 
-        checksum_packet = packet
+        checksum_packet = packet #last packet is the checksum
+        
         if not len(packets):
             return
 

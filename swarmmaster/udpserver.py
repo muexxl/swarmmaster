@@ -52,7 +52,7 @@ class UDPServer(threading.Thread):
         data = None
         try:
             data, address = self.sock.recvfrom(4096)
-            logger.warning(f'UDPServer  |  Received {data }from {address}')
+            #logger.warning(f'UDPServer  |  Received {data }from {address}')
         except BlockingIOError:
             pass
             # logger.info('Excepted BlockingIOError')
