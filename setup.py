@@ -10,7 +10,7 @@ with open('LICENSE') as f:
 
 setup(
     name='swarmmaster',
-    version='0.1.2',
+    version='0.2.2',
     description='Swarmmaster connects multiple Mavlink clients via radio and forwards MAVLINK packages via UDP to a ground control station ',
     long_description=readme,
     author='Stephan Muekusch',
