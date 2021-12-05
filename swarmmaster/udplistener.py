@@ -3,6 +3,7 @@ import socket
 import threading
 import time
 logger = logging.getLogger(__name__)
+from . import onedrone as mavlink
 #from pymavlink.dialects.v20 import ardupilotmega as mavlink2
 
 class UDPListener(threading.Thread):
@@ -14,10 +15,11 @@ class UDPListener(threading.Thread):
         # own_ip = ''
         self.sock.setblocking(0)
         
-        self.sock.bind(('',5544))
+        self.sock.bind(('',10777))
         
         self.rx_buf = bytearray()
         self.rx_lock = threading.Lock()
+        self.bytes_rcvd = 0
         self.data_available = False
 
         self.max_buf_size = 0xffff
@@ -31,7 +33,7 @@ class UDPListener(threading.Thread):
         logger.info('UDP Listener | Running UDP Listener')
         while self.keep_running:
             self._receive() 
-            time.sleep(0.5)
+            time.sleep(0.1)
         
         logger.info('UDP Listener |  Run function ended')
 
@@ -54,6 +56,7 @@ class UDPListener(threading.Thread):
             logger.debug(f'UDP Listener  |  Received {data }from {address}')
             self.rx_lock.acquire()
             self.rx_buf +=bytearray(data)
+            self.bytes_rcvd += len(data)
             self.data_available = True
             self.rx_lock.release()
         

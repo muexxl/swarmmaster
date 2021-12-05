@@ -31,14 +31,14 @@ class SwarmMaster():
         self.udpserver = UDPServer()
         self.udpserver.start()
 
-        self.mavdistributor = Mavdistributor(self.udpserver, self.swarmmanager)
-        self.mavdistributor.start()
-
         self.terminaloutput = TerminalOutput(self.swarmmanager)
         self.terminaloutput.start()
 
         self.udplistener = UDPListener()
         self.udplistener.start()
+
+        self.mavdistributor = Mavdistributor(self.udpserver, self.udplistener, self.swarmmanager)
+        self.mavdistributor.start()
 
         self.mavpacker = Mavpacker(self.udpserver)
         self.messagehandler = MessageHandler(radiolink=self.radiolink,
