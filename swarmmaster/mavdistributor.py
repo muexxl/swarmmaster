@@ -42,7 +42,7 @@ class Mavdistributor(threading.Thread):
                 us.rx_lock.release()
                 self.parse_mav_udp_buffer()
             if self.udp_listener.data_available:
-                self.wrap_data_from_udp_listener_into_mavlink_and_send_to_broadcast()
+                self.forward_rtcm_from_udp_to_broadcast()
             else:
                 time.sleep(0.1)
         logging.info('MAVDIST | MAVDistributor is ending')
@@ -50,6 +50,13 @@ class Mavdistributor(threading.Thread):
     def stop(self):
         self.keep_running = False
         self.join()    
+    def forward_rtcm_from_udp_to_broadcast(self):
+        self.udp_listener.rx_lock.acquire()
+        data=self.udp_listener.rx_buf[:]
+        self.udp_listener.rx_buf.clear()
+        self.udp_listener.data_available=False
+        self.udp_listener.rx_lock.release()
+        self.swarmmanager.broadcast_client.add_data_to_tx_buffer(data)
 
     def wrap_data_from_udp_listener_into_mavlink_and_send_to_broadcast(self):
         self.udp_listener.rx_lock.acquire()
