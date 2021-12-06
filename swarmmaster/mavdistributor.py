@@ -41,7 +41,7 @@ class Mavdistributor(threading.Thread):
                 us.data_available =False
                 us.rx_lock.release()
                 self.parse_mav_udp_buffer()
-            elif self.udp_listener.data_available:
+            if self.udp_listener.data_available:
                 self.wrap_data_from_udp_listener_into_mavlink_and_send_to_broadcast()
             else:
                 time.sleep(0.1)
@@ -55,6 +55,7 @@ class Mavdistributor(threading.Thread):
         self.udp_listener.rx_lock.acquire()
         data=self.udp_listener.rx_buf[:]
         self.udp_listener.rx_buf.clear()
+        self.udp_listener.data_available=False
         self.udp_listener.rx_lock.release()
         size= len(data)
         max_len=180
@@ -70,9 +71,11 @@ class Mavdistributor(threading.Thread):
             flags=0
             flags |= self.sequence <<3
             payload=data
-            mavlink_msg=self.mav.gps_rtcm_data_encode(flags,len(payload),payload)
             self.sequence =(self.sequence+1) % 0x1f
-            
+            mavlink_msg=self.mav.gps_rtcm_data_encode(flags,len(payload),payload)
+            mavlink_data = mavlink_msg.pack(self.mav)
+            self.swarmmanager.broadcast_client.add_data_to_tx_buffer(mavlink_data)
+
         else:
             #send fragmented message
             fragment_id = 0
@@ -83,8 +86,8 @@ class Mavdistributor(threading.Thread):
                 flags |= self.sequence <<3
                 self.sequence =(self.sequence+1) % 0x1f
 
-                payload = data[180:]
-                data =data[:180]
+                payload = data[:180]
+                data =data[180:]
                 mavlink_msg=self.mav.gps_rtcm_data_encode(flags,len(payload),payload)
                 mavlink_data = mavlink_msg.pack(self.mav)
                 self.swarmmanager.broadcast_client.add_data_to_tx_buffer(mavlink_data)
