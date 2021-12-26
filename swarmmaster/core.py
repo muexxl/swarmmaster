@@ -153,10 +153,6 @@ class SwarmMaster():
             self.swarmmanager.broadcast_client.bytes_sent += 32
         self.radiolink.stop_broadcast()
 
-    def broadcast_rtcm_data_from_udp_listener(self):
-        #logger.debug(f'Swarmmaster\t| Called function broadcast ...')
-        pass
-
     def send_heartbeat_if_due(self):
         now = time.time()
         if (now - self.time_at_last_heartbeat) > 2:  #Emit Heartbeat Every two seconds

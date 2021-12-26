@@ -38,3 +38,15 @@ def crc_check(data, crc):
 
 def crc_calc(data):
     return crccheck.crc.Crc16CcittFalse.calc(data)
+
+
+def bytes_to_str(bytestr):
+    string=""
+    for b in bytestr:
+        string+= f"{b:02x} "
+    
+    #remove last blank
+    if string.endswith(" "):
+        string=string[:-1]
+    
+    return string

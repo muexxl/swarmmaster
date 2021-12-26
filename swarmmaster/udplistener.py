@@ -53,10 +53,8 @@ class UDPListener(threading.Thread):
             pass
             # logger.info('Excepted BlockingIOError')
         if data:
-            logger.debug(f'UDP Listener  |  Received {data }from {address}')
             self.rx_lock.acquire()
             self.rx_buf +=bytearray(data)
-            self.bytes_rcvd += len(data)
             self.data_available = True
             self.rx_lock.release()
         
