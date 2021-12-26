@@ -65,7 +65,7 @@ class SwarmMaster():
                 self.talk_to_client(client)
                 self.mavpacker.check_client(client)
             else:
-                time.sleep(0.5)
+                time.sleep(0.01)
             
 
             if CFG_EMIT_HEARTBEAT: self.send_heartbeat_if_due()

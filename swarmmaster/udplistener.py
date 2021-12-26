@@ -32,8 +32,9 @@ class UDPListener(threading.Thread):
         self.keep_running = True
         logger.info('UDP Listener | Running UDP Listener')
         while self.keep_running:
-            self._receive() 
-            time.sleep(0.1)
+            data_received = self._receive() 
+            if not data_received:
+                time.sleep(0.02)
         
         logger.info('UDP Listener |  Run function ended')
 
@@ -57,4 +58,7 @@ class UDPListener(threading.Thread):
             self.rx_buf +=bytearray(data)
             self.data_available = True
             self.rx_lock.release()
+            return True
+        else: 
+            return False
         

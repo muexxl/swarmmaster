@@ -52,7 +52,7 @@ class Mavdistributor(threading.Thread):
             if self.udp_listener.data_available:
                 self.forward_rtcm_from_udp_to_broadcast()
             else:
-                time.sleep(0.1)
+                time.sleep(0.001)
         logging.info('MAVDIST | MAVDistributor is ending')
         
     def stop(self):
