@@ -138,7 +138,7 @@ class SwarmMaster():
             for p in packets:
                 self.radiolink.send_to_broadcast(p)
 
-        for i in range(CFG_BROADCAST_REPETITIONS * 2):
+        for i in range(CFG_BROADCAST_REPETITIONS + 2):
             self.radiolink.send_to_broadcast(checksum_packet)
 
         self.radiolink.stop_broadcast()
