@@ -31,14 +31,14 @@ class SwarmMaster():
         self.udpserver = UDPServer()
         self.udpserver.start()
 
-        self.mavdistributor = Mavdistributor(self.udpserver, self.swarmmanager)
-        self.mavdistributor.start()
-
         self.terminaloutput = TerminalOutput(self.swarmmanager)
         self.terminaloutput.start()
 
         self.udplistener = UDPListener()
         self.udplistener.start()
+
+        self.mavdistributor = Mavdistributor(self.udpserver, self.udplistener, self.swarmmanager)
+        self.mavdistributor.start()
 
         self.mavpacker = Mavpacker(self.udpserver)
         self.messagehandler = MessageHandler(radiolink=self.radiolink,
@@ -65,7 +65,7 @@ class SwarmMaster():
                 self.talk_to_client(client)
                 self.mavpacker.check_client(client)
             else:
-                time.sleep(0.5)
+                time.sleep(0.01)
             
 
             if CFG_EMIT_HEARTBEAT: self.send_heartbeat_if_due()
@@ -138,7 +138,7 @@ class SwarmMaster():
             for p in packets:
                 self.radiolink.send_to_broadcast(p)
 
-        for i in range(CFG_BROADCAST_REPETITIONS * 2):
+        for i in range(CFG_BROADCAST_REPETITIONS + 2):
             self.radiolink.send_to_broadcast(checksum_packet)
 
         self.radiolink.stop_broadcast()
@@ -152,10 +152,6 @@ class SwarmMaster():
             self.radiolink.send_to_broadcast(msg)
             self.swarmmanager.broadcast_client.bytes_sent += 32
         self.radiolink.stop_broadcast()
-
-    def broadcast_rtcm_data_from_udp_listener(self):
-        #logger.debug(f'Swarmmaster\t| Called function broadcast ...')
-        pass
 
     def send_heartbeat_if_due(self):
         now = time.time()

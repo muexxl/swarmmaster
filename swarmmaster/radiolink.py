@@ -61,7 +61,7 @@ class Radiolink():
 
     def send_to_broadcast(self, data:bytearray):
         self.radio.write(data,1) # use multicast to signal noAck. not really faster :// approx 30 ms
-        time.sleep(0.00001) 
+        time.sleep(0.00001) #WHY ?!?!?
 
     def start_broadcast(self):
         self.open_reading_and_writing_pipe(self.config.get_broadcast_address())
