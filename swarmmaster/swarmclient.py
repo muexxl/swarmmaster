@@ -4,8 +4,10 @@ import logging
 from .configuration import *
 from .helpers import *
 from .packetbuffer import PacketBuffer
+from .ubxhelper import *
 
 logger = logging.getLogger(__name__)
+
 
 class SwarmClient:
     max_rx_buf = 2**20
@@ -20,8 +22,8 @@ class SwarmClient:
         self.uid2 = 0
         self.devid = 0
         self.registration_request_ack_sent = False
-
-        self.packet_buffer= PacketBuffer()
+        self.ubx_bc_buffer=[]
+        self.packet_buffer = PacketBuffer()
         self.tx_buffer = bytearray()
         self.tx_lock = threading.Lock()
 
@@ -31,24 +33,26 @@ class SwarmClient:
         self.mav_id_correct = False
         self.mav_id_request_sent = 0
 
-        self.empty_packets_received =0 
-        self.packets_sent =0
+        self.empty_packets_received = 0
+        self.packets_sent = 0
         self.bytes_received = 0
         self.bytes_sent = 0
-
 
         self.packet_id = 0
         self.chksum = 0
         self.chksum_due = 0
 
+        self.gns_ini_requested_earliest = 0
+        self.last_gns_ini_sent = 0
+
     def get_stats(self):
         self.packet_buffer.packet_buffer_lock.acquire()
         self.packet_buffer.stream_buffer_lock.acquire()
         received_bytes_brutto = self.packet_buffer.received_bytes_brutto
-        self.packet_buffer.received_bytes_brutto =0
+        self.packet_buffer.received_bytes_brutto = 0
         received_bytes_netto = self.packet_buffer.received_bytes_netto
         self.packet_buffer.received_bytes_netto = 0
-        received_packets= self.packet_buffer.received_packets
+        received_packets = self.packet_buffer.received_packets
         lost_packets = self.packet_buffer.lost_packets
         restored_packets = self.packet_buffer.restored_packets
         double_packets = self.packet_buffer.double_packets
@@ -59,14 +63,13 @@ class SwarmClient:
         bytes_sent = self.bytes_sent
         self.bytes_sent = 0
         self.tx_lock.release()
-        return bytes_sent, received_bytes_brutto,received_bytes_netto, received_packets,double_packets, restored_packets ,lost_packets
+        return bytes_sent, received_bytes_brutto, received_bytes_netto, received_packets, double_packets, restored_packets, lost_packets
 
     def get_tx_buffer_size(self):
         return len(self.tx_buffer)
 
     def add_msg_to_packet_buffer(self, msg):
         self.packet_buffer.add_message(msg)
-
 
     def add_data_to_tx_buffer(self, data):
         self.tx_lock.acquire()
@@ -86,6 +89,12 @@ class SwarmClient:
         data = self.tx_buffer[:length]
         self.tx_lock.release()
         return data
+
+    def clear_tx_buffer(self):
+        self.tx_lock.acquire()
+        self.tx_buffer = bytearray()
+        self.tx_lock.release()
+
 
     def remove_data_from_tx_buffer(self, length):
         self.tx_lock.acquire()
@@ -160,7 +169,9 @@ class SwarmClient:
             #msg += b'\x00'
             msg += self.get_data_from_tx_buffer(31)
 
-            if (len(msg) < 32): #auffuellen mit f0 falls .. ja falls .. ja falls das Paket sonst nicht vollstaendig ist
+            if (
+                    len(msg) < 32
+            ):  #auffuellen mit f0 falls .. ja falls .. ja falls das Paket sonst nicht vollstaendig ist
                 self.chksum_due = 1
                 while (len(msg) < 32):
                     msg += b'\xf0'
@@ -174,4 +185,58 @@ class SwarmClient:
 
         return msg
 
+    def get_free_bc_buffer(self):
+        max_len= MAX_PACKET_BEFORE_BC_CHECKSUM * 31
+        return max_len - len(self.tx_buffer)
     
+    def parse_ubx_msgs_to_ubx_buffer(self, data:bytearray):        
+        pass
+    
+    def add_gns_assistance_data_if_required(self):
+
+        #check if required
+        if not self.gns_ini_requested_earliest:
+            return
+        
+        now = time.time()
+
+        #check if due
+        if now < self.gns_ini_requested_earliest:
+            return
+        
+        #check if it has been sent within the last 10 seconds
+        if (now - self.last_gns_ini_sent < 10):
+            return
+
+        #check if file exists
+        if not os.path.isfile(GNS_ASSISTANCE_FILE):
+            logger.error(
+                f"Swarmmaster\t| GNS Assistance File not found {GNS_ASSISTANCE_FILE}"
+            )
+            return
+
+        #check file age
+        age = now - os.stat(GNS_ASSISTANCE_FILE).st_mtime
+        if (age > MAX_GNS_ASSISTANCE_FILE_AGE):
+            logger.error(
+                f"Swarmmaster\t| GNS Assistance File is {age:.0f} seconds old and cannot be used"
+            )
+            return
+
+        #read assistance data from file
+        with open(GNS_ASSISTANCE_FILE, 'rb') as f:
+            assistancedata = f.read()
+
+        #add UBX MGA UTC INI MSG
+        msg = UBX_MGA_INI_TIME_UTC()
+        msg.encode(0.1, 0.5)
+        self.ubx_bc_buffer.append(msg.serialize())
+        assistancedata = msg.serialize() + assistancedata
+        
+        with open("assistancedata.hex", 'wb') as f:
+            f.write(assistancedata)
+        #add data to tx_buffer
+
+
+        self.last_gns_ini_sent = now
+        self.gns_ini_requested_earliest = 0

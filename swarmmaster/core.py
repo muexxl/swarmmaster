@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from swarmmaster.ubxhelper import UBX_MGA_INI_TIME_UTC
 from .radiolink import Radiolink
 from .messagehandler import MessageHandler
 from .swarmmanager import SwarmManager
@@ -49,6 +50,8 @@ class SwarmMaster():
         self.rx_counter = 0
         self.tx_counter = 0
         self.time_at_last_heartbeat = 0
+        self.gns_ini_requested= 0
+        self.last_gns_ini=0
 
     def run(self):
         logger.info('Starting up Swarmmaster')
@@ -59,7 +62,6 @@ class SwarmMaster():
 
             if msg:
                 self.messagehandler.handle_msg(msg)
-
             client = self.swarmmanager.next_client()
             if client:
                 self.talk_to_client(client)
@@ -94,6 +96,7 @@ class SwarmMaster():
 
         if (not client.registration_request_ack_sent):
             self.send_registration_request_ack(client)
+            
             return
 
         self.radiolink.open_pipes_to_id(client.id)
@@ -119,7 +122,9 @@ class SwarmMaster():
         self.radiolink.radio.startListening()
 
     def broadcast_data(self):
+
         bc = self.swarmmanager.broadcast_client
+        bc.add_gns_assistance_data_if_required()
         packet = bc.get_bc_packet()
         packets = [] #initialize empty list
 

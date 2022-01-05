@@ -1,5 +1,6 @@
 import logging
 import struct
+import time
 
 from .swarmmanager import SwarmManager
 from .radiolink import Radiolink
@@ -44,6 +45,7 @@ class MessageHandler(object):
         #logger.info(f'[MessageHandler] Received message : {msg[:10]}')
         if message_id == coco.REGISTRATION_REQUEST:
             self.handle_registration_request(msg)
+            self.swarmmanager.broadcast_client.gns_ini_requested_earliest = time.time()+GNS_ASSISTANCE_DELAY
         elif message_id & 0xf0 ==coco.DATA:
             self.swarmmanager.current_client.add_msg_to_packet_buffer(msg)
         elif message_id & 0xf0 == coco.CHKSUM:

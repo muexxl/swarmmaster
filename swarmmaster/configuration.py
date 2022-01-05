@@ -1,3 +1,5 @@
+import os
+
 RTCM_PREFIX = b'\xd3'
 
 CFG_EMIT_HEARTBEAT = 0
@@ -11,3 +13,9 @@ DRONE_DB_PATH='drones.db'
 MAX_CLIENT_ID=0xffff
 MAX_PACKET_BEFORE_CHECKSUM= 0x4
 MAX_PACKET_BEFORE_BC_CHECKSUM =0xa
+
+GNS_ASSISTANCE_FILE="~/rtk_streamer/assistance_data.ubx"
+GNS_ASSISTANCE_FILE=os.path.expanduser(GNS_ASSISTANCE_FILE)
+GNS_ASSISTANCE_DELAY = 0.4
+
+MAX_GNS_ASSISTANCE_FILE_AGE = 60*60*4 #maximum file age in seconds - Default is 4 hours
