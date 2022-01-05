@@ -16,6 +16,6 @@ MAX_PACKET_BEFORE_BC_CHECKSUM =0xa
 
 GNS_ASSISTANCE_FILE="~/rtk_streamer/assistance_data.ubx"
 GNS_ASSISTANCE_FILE=os.path.expanduser(GNS_ASSISTANCE_FILE)
-GNS_ASSISTANCE_DELAY = 0.4
+GNS_ASSISTANCE_DELAY = 0.2
 
 MAX_GNS_ASSISTANCE_FILE_AGE = 60*60*4 #maximum file age in seconds - Default is 4 hours

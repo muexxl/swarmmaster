@@ -185,13 +185,6 @@ class SwarmClient:
 
         return msg
 
-    def get_free_bc_buffer(self):
-        max_len= MAX_PACKET_BEFORE_BC_CHECKSUM * 31
-        return max_len - len(self.tx_buffer)
-    
-    def parse_ubx_msgs_to_ubx_buffer(self, data:bytearray):        
-        pass
-    
     def add_gns_assistance_data_if_required(self):
 
         #check if required
@@ -202,10 +195,6 @@ class SwarmClient:
 
         #check if due
         if now < self.gns_ini_requested_earliest:
-            return
-        
-        #check if it has been sent within the last 10 seconds
-        if (now - self.last_gns_ini_sent < 10):
             return
 
         #check if file exists
@@ -230,13 +219,15 @@ class SwarmClient:
         #add UBX MGA UTC INI MSG
         msg = UBX_MGA_INI_TIME_UTC()
         msg.encode(0.1, 0.5)
-        self.ubx_bc_buffer.append(msg.serialize())
+
         assistancedata = msg.serialize() + assistancedata
         
+        #dump to file
         with open("assistancedata.hex", 'wb') as f:
             f.write(assistancedata)
+
         #add data to tx_buffer
-
-
+        self.add_data_to_tx_buffer(assistancedata)
+        
         self.last_gns_ini_sent = now
         self.gns_ini_requested_earliest = 0

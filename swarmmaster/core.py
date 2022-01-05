@@ -89,6 +89,7 @@ class SwarmMaster():
         success = self.radiolink.send(msg)
 
         client.registration_request_ack_sent = True
+        client.gns_ini_requested_earliest = time.time()+GNS_ASSISTANCE_DELAY
 
         self.radiolink.radio.startListening()
 
@@ -98,7 +99,7 @@ class SwarmMaster():
             self.send_registration_request_ack(client)
             
             return
-
+        client.add_gns_assistance_data_if_required()
         self.radiolink.open_pipes_to_id(client.id)
 
 
@@ -124,7 +125,7 @@ class SwarmMaster():
     def broadcast_data(self):
 
         bc = self.swarmmanager.broadcast_client
-        bc.add_gns_assistance_data_if_required()
+        #bc.add_gns_assistance_data_if_required()
         packet = bc.get_bc_packet()
         packets = [] #initialize empty list
 
