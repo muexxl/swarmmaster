@@ -1,6 +1,7 @@
 import logging
 import threading
 import time
+from .configuration import *
 logger = logging.getLogger(__name__)
 
 #from pymavlink.dialects.v20 import ardupilotmega as mavlink2
@@ -22,7 +23,7 @@ class TerminalOutput(threading.Thread):
         logger.info('Running TerminalOutput Thread')
         while self.keep_running:
             print("\033c", end="")
-            self.print_time()
+            self.print_header()
             self.print_stats()
             time.sleep(self.sleep_time)
         
@@ -55,7 +56,8 @@ class TerminalOutput(threading.Thread):
 
     
 
-    def print_time(self):
+    def print_header(self):
+        print(f"Swarmmaster {VERSION}.{MAJOR}.{MINOR}\t\t\t\t\t\t", end = '')
         print(time.strftime("%d.%m.%Y %H:%M:%S", time.localtime()))
 
     def stop(self):

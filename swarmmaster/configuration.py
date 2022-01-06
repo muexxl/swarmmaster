@@ -1,5 +1,9 @@
 import os
 
+VERSION = 0
+MAJOR= 3
+MINOR= 0
+
 RTCM_PREFIX = b'\xd3'
 
 CFG_EMIT_HEARTBEAT = 0
