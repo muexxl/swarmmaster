@@ -60,14 +60,22 @@ class Mavdistributor(threading.Thread):
         self.join()    
 
     def forward_rtcm_from_udp_to_broadcast(self):
+        
+        #extract data from udp listener
         self.udp_listener.rx_lock.acquire()
         data=self.udp_listener.rx_buf[:]
         self.udp_listener.rx_buf.clear()
         self.udp_listener.data_available=False
         self.udp_listener.rx_lock.release()
+        
+        #check if data package is too large (typically ~200 bytes)
+        if len(data)>500:
+            logger.warning(f"MAVDistributor | dropping {len(data)} bytes of RTCM data because of excessive size")
+            return
 
         log_msg= f"len={len(data)}, content={bytes_to_str(data)}"
         bc_logger.info(log_msg)
+        
         self.swarmmanager.broadcast_client.add_data_to_tx_buffer(data)
 
     def wrap_data_from_udp_listener_into_mavlink_and_send_to_broadcast(self):

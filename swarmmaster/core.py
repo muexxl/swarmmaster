@@ -116,6 +116,7 @@ class SwarmMaster():
             if success:
                 answer = self.radiolink.check_radio()
                 self.messagehandler.handle_msg(answer)
+                client.bytes_sent+=32
             else:
                 self.swarmmanager.report_fail()
                 break
@@ -143,9 +144,11 @@ class SwarmMaster():
         for i in range(CFG_BROADCAST_REPETITIONS):
             for p in packets:
                 self.radiolink.send_to_broadcast(p)
+                bc.bytes_sent+=32
 
         for i in range(CFG_BROADCAST_REPETITIONS + 2):
             self.radiolink.send_to_broadcast(checksum_packet)
+            bc.bytes_sent+=32
 
         self.radiolink.stop_broadcast()
 

@@ -22,12 +22,10 @@ class SwarmClient:
         self.uid2 = 0
         self.devid = 0
         self.registration_request_ack_sent = False
-        self.ubx_bc_buffer=[]
         self.packet_buffer = PacketBuffer()
         self.tx_buffer = bytearray()
         self.tx_lock = threading.Lock()
 
-        self.last_msg_id = coco.HELLO
         self.fail_counter = 0
         self.prio = 0  # Prio is 0 as base. Prio 0 means highest.  increase +1 for everytime the client is talked to. regular reductions ? maybe.
         self.mav_id_correct = False
@@ -37,6 +35,7 @@ class SwarmClient:
         self.packets_sent = 0
         self.bytes_received = 0
         self.bytes_sent = 0
+        self.bytes_sent_net=0
 
         self.packet_id = 0
         self.chksum = 0
@@ -62,8 +61,10 @@ class SwarmClient:
         self.tx_lock.acquire()
         bytes_sent = self.bytes_sent
         self.bytes_sent = 0
+        bytes_sent_net = self.bytes_sent_net
+        self.bytes_sent_net= 0
         self.tx_lock.release()
-        return bytes_sent, received_bytes_brutto, received_bytes_netto, received_packets, double_packets, restored_packets, lost_packets
+        return bytes_sent, bytes_sent_net, received_bytes_brutto, received_bytes_netto, received_packets, double_packets, restored_packets, lost_packets
 
     def get_tx_buffer_size(self):
         return len(self.tx_buffer)
@@ -100,7 +101,7 @@ class SwarmClient:
         self.tx_lock.acquire()
         length = min(length, len(self.tx_buffer))
         self.tx_buffer = self.tx_buffer[length:]
-        self.bytes_sent += length
+        self.bytes_sent_net += length
         self.tx_lock.release()
 
     def get_data_from_tx_buffer(self, length):
@@ -108,7 +109,7 @@ class SwarmClient:
         length = min(length, len(self.tx_buffer))
         data = self.tx_buffer[:length]
         self.tx_buffer = self.tx_buffer[length:]
-        self.bytes_sent += length
+        self.bytes_sent_net += length
         self.tx_lock.release()
         return data
 

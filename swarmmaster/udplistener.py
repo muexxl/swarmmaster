@@ -53,10 +53,6 @@ class UDPListener(threading.Thread):
         except BlockingIOError:
             pass
             # logger.info('Excepted BlockingIOError')
-        
-        if len(data) >500: #typically 200 byte per package
-            data=None
-
         if data:
             self.rx_lock.acquire()
             self.rx_buf +=bytearray(data)
