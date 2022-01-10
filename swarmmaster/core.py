@@ -69,6 +69,8 @@ class SwarmMaster():
             else:
                 time.sleep(0.01)
             
+            # if len(self.swarmmanager.clients)<3:
+            #     time.sleep(0.015)
 
             if CFG_EMIT_HEARTBEAT: self.send_heartbeat_if_due()
 
@@ -109,7 +111,7 @@ class SwarmMaster():
                 msg = msg[:1]
             else:
                 logger.debug(
-                    f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg[:10]}'
+                    f'Swarmmaster\t| Sending to client # {client.id} of {len(self.swarmmanager.clients)} : {msg.hex()}'
                 )
             #time.sleep(0.01)
             success = self.radiolink.send(msg)

@@ -224,8 +224,8 @@ class SwarmClient:
         assistancedata = msg.serialize() + assistancedata
         
         #dump to file
-        with open("assistancedata.hex", 'wb') as f:
-            f.write(assistancedata)
+        # with open(GNS_ASSISTANCE_FILE, 'wb') as f:
+        #     f.write(assistancedata)
 
         #add data to tx_buffer
         self.add_data_to_tx_buffer(assistancedata)

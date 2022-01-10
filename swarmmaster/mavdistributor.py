@@ -73,8 +73,8 @@ class Mavdistributor(threading.Thread):
             logger.warning(f"MAVDistributor | dropping {len(data)} bytes of RTCM data because of excessive size")
             return
 
-        log_msg= f"len={len(data)}, content={bytes_to_str(data)}"
-        bc_logger.info(log_msg)
+        #log_msg= f"len={len(data)}, content={bytes_to_str(data)}"
+        #bc_logger.info(log_msg)
         
         self.swarmmanager.broadcast_client.add_data_to_tx_buffer(data)
 
