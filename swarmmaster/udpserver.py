@@ -43,9 +43,11 @@ class UDPServer(threading.Thread):
         while self.keep_running:
             if self.tx_buf:
                 self._send()
-            self._receive()
+            if self._receive():
+                pass
+            else:
+                time.sleep(0.05)
 
-            time.sleep(0.2)
 
         logger.info('UDP SERVER Run function ended')
 
@@ -60,6 +62,7 @@ class UDPServer(threading.Thread):
     def _receive(self):
 
         data = None
+        data_received = False
         try:
             data, address = self.sock.recvfrom(4096)
             #logger.warning(f'UDPServer  |  Received {data }from {address}')
@@ -69,8 +72,12 @@ class UDPServer(threading.Thread):
         if data:
             self.rx_lock.acquire()
             self.rx_buf +=bytearray(data)
+            #logger.info(f"UDPSERVER | received data {len(data)} {data.hex()}")
             self.data_available = True
             self.rx_lock.release()
+            data_received=True
+
+        return data_received
 
     def _send(self):
         self.tx_lock.acquire()

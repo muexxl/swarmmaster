@@ -69,9 +69,6 @@ class SwarmMaster():
             else:
                 time.sleep(0.01)
             
-            # if len(self.swarmmanager.clients)<3:
-            #     time.sleep(0.015)
-
             if CFG_EMIT_HEARTBEAT: self.send_heartbeat_if_due()
 
     def send_registration_request_ack(self, client: SwarmClient):
